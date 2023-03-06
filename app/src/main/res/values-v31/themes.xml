@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.Musik" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:statusBarColor">#180018</item>
+        <item name="android:windowSplashScreenBackground">#180018</item>
+    </style>
+</resources>

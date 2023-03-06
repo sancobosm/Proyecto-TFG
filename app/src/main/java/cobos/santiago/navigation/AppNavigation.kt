@@ -14,15 +14,15 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = AppScreens.SplashScreen.ruta
+        startDestination = AppScreens.SplashScreen.rute
     ) {
-        composable(AppScreens.SplashScreen.ruta) {
+        composable(AppScreens.SplashScreen.rute) {
             SplashScreen(navController)
         }
-        composable(AppScreens.MainActivity.ruta) {
+        composable(AppScreens.MainActivity.rute) {
             MyFirstScreen(navController)
         }
-        composable(AppScreens.HomeScreen.ruta) {
+        composable(AppScreens.HomeScreen.rute) {
             HomeScreen()
         }
     }

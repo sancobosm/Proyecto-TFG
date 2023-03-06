@@ -7,14 +7,13 @@ plugins {
 }
 
 
-
 android {
     namespace 'cobos.santiago'
     compileSdk 33
 
     defaultConfig {
         applicationId "cobos.santiago"
-        minSdk 24
+        minSdk 26
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -55,6 +54,7 @@ android {
 }
 
 dependencies {
+    implementation project(':music-service')
     implementation "androidx.compose.material:material-icons-extended:1.4.0"
 
     implementation 'androidx.core:core-ktx:1.9.0'
@@ -124,6 +124,11 @@ dependencies {
 
     // Firebase Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4'
+
+    // Media3
+    implementation("androidx.media3:media3-exoplayer:1.0.1")
+    implementation("androidx.media3:media3-ui:1.0.1")
+    implementation("androidx.media3:media3-session:1.0.1")
 }
 kapt {
     correctErrorTypes = true

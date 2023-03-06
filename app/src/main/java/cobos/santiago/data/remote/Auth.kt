@@ -4,7 +4,7 @@ import androidx.navigation.NavController
 import cobos.santiago.navigation.AppScreens
 import com.google.firebase.auth.FirebaseAuth
 
-class Auth () {
+class Auth() {
     private val db = FirebaseAuth.getInstance()
 
     /*private val googleConf = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -30,7 +30,7 @@ class Auth () {
     ) {
         db.signInWithEmailAndPassword(user, password).addOnCompleteListener {
             if (it.isSuccessful) {
-                navController.navigate(AppScreens.HomeScreen.ruta)
+                navController.navigate(AppScreens.HomeScreen.rute)
             } else {
                 onError()
             }

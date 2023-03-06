@@ -23,7 +23,7 @@ fun SplashScreen(navController: NavHostController) {
     LaunchedEffect(key1 = true) {
         delay(2000)
         navController.popBackStack()
-        navController.navigate(AppScreens.MainActivity.ruta)
+        navController.navigate(AppScreens.MainActivity.rute)
     }
 
     val systemUiController = rememberSystemUiController()

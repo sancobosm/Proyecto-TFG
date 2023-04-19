@@ -2,10 +2,10 @@ package cobos.santiago.ui.loginScreen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -17,13 +17,15 @@ import cobos.santiago.MyFieldPassword
 import cobos.santiago.MyForgotPassword
 import cobos.santiago.R
 import cobos.santiago.navigation.AppScreens
+import cobos.santiago.ui.viewmodels.LoginViewModel
 
 @Composable
-fun MyLoginView(navController: NavController) {
-    var loginText by remember { mutableStateOf(("")) }
-    var passwordText by remember { mutableStateOf(("")) }
+fun MyLoginView(navController: NavController, loginViewModel: LoginViewModel) {
+    //live data logic
+    val loginText:String by loginViewModel.email.observeAsState(initial = "")
+    val passwordText:String by loginViewModel.password.observeAsState(initial = "")
 
-
+    //column for main content of the login
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -32,11 +34,11 @@ fun MyLoginView(navController: NavController) {
     ) {
         Spacer(modifier = Modifier.size(20.dp))
         MyField(text = loginText, {
-            loginText = it
+            loginViewModel.onTextChanged(it)
         }, "Email")
         Spacer(modifier = Modifier.size(20.dp))
         MyFieldPassword(text = passwordText, {
-            passwordText = it
+            loginViewModel.onPasswordChanged(it)
         }, "Password")
         Spacer(modifier = Modifier.size(30.dp))
         Button(

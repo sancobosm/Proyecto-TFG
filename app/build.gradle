@@ -70,6 +70,8 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
 
+    //LiveData
+    implementation "androidx.compose.runtime:runtime-livedata:1.4.1"
 
     //Para las animaciones
     def lottieVersion = '6.0.0'

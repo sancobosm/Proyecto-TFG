@@ -1,12 +1,13 @@
-package cobos.santiago.navegacion
+package cobos.santiago.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import cobos.santiago.Greeting
+import cobos.santiago.MyFirstScreen
 import cobos.santiago.SplashScreen
+import cobos.santiago.ui.mainScreen.HomeBottomBar
+import cobos.santiago.ui.mainScreen.HomeScreen
 
 @Composable
 fun AppNavigation(){
@@ -20,7 +21,10 @@ fun AppNavigation(){
             SplashScreen(navController)
         }
         composable(AppScreens.MainActivity.ruta){
-            Greeting(name = "hola")
+            MyFirstScreen(navController)
+        }
+        composable(AppScreens.HomeScreen.ruta){
+            HomeScreen()
         }
     }
 }

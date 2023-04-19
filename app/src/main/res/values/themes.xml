@@ -3,6 +3,5 @@
 
     <style name="Theme.Musik" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowDisablePreview">true</item>
-        <item name="android:statusBarColor">#180018</item>
     </style>
 </resources>

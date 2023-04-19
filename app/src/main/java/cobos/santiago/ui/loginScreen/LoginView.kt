@@ -18,12 +18,14 @@ import cobos.santiago.MyForgotPassword
 import cobos.santiago.R
 import cobos.santiago.navigation.AppScreens
 import cobos.santiago.ui.viewmodels.LoginViewModel
+import kotlin.math.log
 
 @Composable
 fun MyLoginView(navController: NavController, loginViewModel: LoginViewModel) {
     //live data logic
     val loginText:String by loginViewModel.email.observeAsState(initial = "")
     val passwordText:String by loginViewModel.password.observeAsState(initial = "")
+    val isButtonEnabled:Boolean by loginViewModel.isButtonEnabled.observeAsState(initial = false)
 
     //column for main content of the login
     Column(
@@ -35,15 +37,18 @@ fun MyLoginView(navController: NavController, loginViewModel: LoginViewModel) {
         Spacer(modifier = Modifier.size(20.dp))
         MyField(text = loginText, {
             loginViewModel.onTextChanged(it)
+            loginViewModel.onLoginChanged(it,passwordText)
         }, "Email")
         Spacer(modifier = Modifier.size(20.dp))
         MyFieldPassword(text = passwordText, {
             loginViewModel.onPasswordChanged(it)
+            loginViewModel.onLoginChanged(loginText,it)
         }, "Password")
         Spacer(modifier = Modifier.size(30.dp))
         Button(
             modifier = Modifier
                 .width(200.dp),
+            enabled = isButtonEnabled,
             onClick = {
                 navController.navigate(AppScreens.HomeScreen.ruta)
             }) {

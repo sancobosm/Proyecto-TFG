@@ -12,15 +12,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import cobos.santiago.MyField
 import cobos.santiago.MyFieldPassword
 import cobos.santiago.MyForgotPassword
 import cobos.santiago.R
-import cobos.santiago.navigation.AppScreens
+import cobos.santiago.data.remote.Auth
 import cobos.santiago.ui.viewmodels.LoginViewModel
-import kotlin.math.log
 
 @Composable
 fun MyLoginView(navController: NavController) {
@@ -32,6 +30,9 @@ fun MyLoginView(navController: NavController) {
     val passwordText:String by viewModel.password.observeAsState(initial = "")
     val isButtonEnabled:Boolean by viewModel.isButtonEnabled.observeAsState(initial = false)
 
+    val isLoginError: Boolean by viewModel.isLoginSuccess.observeAsState(initial = false)
+
+    val auth = Auth()
     //column for main content of the login
     Column(
         modifier = Modifier
@@ -40,22 +41,28 @@ fun MyLoginView(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.size(20.dp))
-        MyField(text = loginText, {
+        MyField(text = loginText,
+            {
             viewModel.onTextChanged(it)
             viewModel.onLoginChanged(it,passwordText)
-        }, "Email")
+        }, "Email",isLoginError)
         Spacer(modifier = Modifier.size(20.dp))
         MyFieldPassword(text = passwordText, {
             viewModel.onPasswordChanged(it)
             viewModel.onLoginChanged(loginText,it)
-        }, "Password")
+        }, "Password",isLoginError)
         Spacer(modifier = Modifier.size(30.dp))
         Button(
             modifier = Modifier
                 .width(200.dp),
-            enabled = isButtonEnabled,
+            enabled = true,
             onClick = {
-                navController.navigate(AppScreens.HomeScreen.ruta)
+                //navController.navigate(AppScreens.HomeScreen.ruta)
+                auth.makeLogin(loginText, passwordText, navController){
+                    //caso de error
+                    viewModel.onLoginError(true)
+                    viewModel.onLoginChanged("","")
+                }
             }) {
             Text("Login")
         }

@@ -1,8 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.dagger.hilt.android'
     id 'kotlin-kapt'
-  //  id 'com.google.dagger.hilt.android'
 }
 
 
@@ -85,9 +85,10 @@ dependencies {
 
     //Dagger hilt
 
-    //implementation("com.google.dagger:hilt-android:2.45")
-  //  kapt("com.google.dagger:hilt-android-compiler:2.44")
-  //  implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
+    implementation "com.google.dagger:hilt-android:2.44"
+    kapt "com.google.dagger:hilt-compiler:2.44"
+    //implementation "androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03"
+    implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 
     // Glide
     implementation 'com.github.bumptech.glide:glide:4.10.0'
@@ -96,6 +97,11 @@ dependencies {
     //Accompanist
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.23.1"
 
+    //exoplayer
+    // ExoPlayer
+    api "com.google.android.exoplayer:exoplayer-core:$exoplayerVersion"
+    api "com.google.android.exoplayer:exoplayer-ui:$exoplayerVersion"
+    api "com.google.android.exoplayer:extension-mediasession:$exoplayerVersion"
 
 }
 kapt {

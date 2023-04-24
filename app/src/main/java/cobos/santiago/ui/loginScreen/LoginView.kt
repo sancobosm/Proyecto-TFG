@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import cobos.santiago.MyField
 import cobos.santiago.MyFieldPassword
@@ -21,11 +23,14 @@ import cobos.santiago.ui.viewmodels.LoginViewModel
 import kotlin.math.log
 
 @Composable
-fun MyLoginView(navController: NavController, loginViewModel: LoginViewModel) {
+fun MyLoginView(navController: NavController) {
+    //viewmodel
+    val viewModel = hiltViewModel<LoginViewModel>()
+
     //live data logic
-    val loginText:String by loginViewModel.email.observeAsState(initial = "")
-    val passwordText:String by loginViewModel.password.observeAsState(initial = "")
-    val isButtonEnabled:Boolean by loginViewModel.isButtonEnabled.observeAsState(initial = false)
+    val loginText:String by viewModel.email.observeAsState(initial = "")
+    val passwordText:String by viewModel.password.observeAsState(initial = "")
+    val isButtonEnabled:Boolean by viewModel.isButtonEnabled.observeAsState(initial = false)
 
     //column for main content of the login
     Column(
@@ -36,13 +41,13 @@ fun MyLoginView(navController: NavController, loginViewModel: LoginViewModel) {
     ) {
         Spacer(modifier = Modifier.size(20.dp))
         MyField(text = loginText, {
-            loginViewModel.onTextChanged(it)
-            loginViewModel.onLoginChanged(it,passwordText)
+            viewModel.onTextChanged(it)
+            viewModel.onLoginChanged(it,passwordText)
         }, "Email")
         Spacer(modifier = Modifier.size(20.dp))
         MyFieldPassword(text = passwordText, {
-            loginViewModel.onPasswordChanged(it)
-            loginViewModel.onLoginChanged(loginText,it)
+            viewModel.onPasswordChanged(it)
+            viewModel.onLoginChanged(loginText,it)
         }, "Password")
         Spacer(modifier = Modifier.size(30.dp))
         Button(

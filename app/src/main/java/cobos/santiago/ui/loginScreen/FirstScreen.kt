@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import cobos.santiago.material3Compatibilities.pagerTabIndicatorOffset
 import cobos.santiago.ui.loginScreen.MyLoginView
-import cobos.santiago.ui.viewmodels.LoginViewModel
 import com.airbnb.lottie.compose.*
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -29,7 +28,7 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MyFirstScreen(navController: NavController, loginViewModel: LoginViewModel) {
+fun MyFirstScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -38,12 +37,12 @@ fun MyFirstScreen(navController: NavController, loginViewModel: LoginViewModel) 
     ) {
         MyBackroundAnimation()
     }
-    MyHorizontalPager(navController, loginViewModel)
+    MyHorizontalPager(navController)
 }
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun MyHorizontalPager(navController: NavController, loginViewModel: LoginViewModel) {
+fun MyHorizontalPager(navController: NavController) {
     val pagerState = rememberPagerState()
     val tabItems = listOf(
         R.string.login,
@@ -101,7 +100,7 @@ fun MyHorizontalPager(navController: NavController, loginViewModel: LoginViewMod
         ) { page ->
             when (page) {
                 0 -> {
-                    MyLoginView(navController, loginViewModel)
+                    MyLoginView(navController)
                 }
                 1 -> {
                     MyRegisterView()

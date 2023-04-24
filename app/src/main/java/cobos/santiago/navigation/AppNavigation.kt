@@ -7,11 +7,9 @@ import androidx.navigation.compose.rememberNavController
 import cobos.santiago.MyFirstScreen
 import cobos.santiago.SplashScreen
 import cobos.santiago.ui.mainScreen.HomeScreen
-import cobos.santiago.ui.viewmodels.LoginViewModel
 
 @Composable
 fun AppNavigation(){
-
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -21,7 +19,7 @@ fun AppNavigation(){
             SplashScreen(navController)
         }
         composable(AppScreens.MainActivity.ruta){
-            MyFirstScreen(navController, LoginViewModel())
+            MyFirstScreen(navController)
         }
         composable(AppScreens.HomeScreen.ruta){
             HomeScreen()

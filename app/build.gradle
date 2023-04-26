@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id "kotlin-android"
     id 'com.google.dagger.hilt.android'
     id 'kotlin-kapt'
     id 'com.google.gms.google-services'
@@ -101,6 +102,8 @@ dependencies {
 
     //Accompanist
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.23.1"
+    implementation "com.google.accompanist:accompanist-navigation-animation:0.23.1"
+
 
     //exoplayer
     // ExoPlayer
@@ -115,7 +118,7 @@ dependencies {
 
     // Firebase Storage KTX
     implementation 'com.google.firebase:firebase-storage-ktx:20.1.0'
-    implementation 'com.google.firebase:firebase-firestore-ktx:24.5.0'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
 
     implementation 'com.google.firebase:firebase-auth:21.3.0'
     implementation 'com.google.firebase:firebase-auth-ktx:21.3.0'
@@ -124,6 +127,9 @@ dependencies {
 
     // Firebase Coroutines
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4'
+
+    //Coil
+    implementation "io.coil-kt:coil-compose:2.3.0"
 }
 kapt {
     correctErrorTypes = true

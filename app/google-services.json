@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "828425020051",
-    "project_id": "musik-firebase",
-    "storage_bucket": "musik-firebase.appspot.com"
+    "project_number": "392936409456",
+    "project_id": "musik-a103c",
+    "storage_bucket": "musik-a103c.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:828425020051:android:cdee54aab88400ff746366",
+        "mobilesdk_app_id": "1:392936409456:android:8f8b7247b46655e257a7b5",
         "android_client_info": {
           "package_name": "cobos.santiago"
         }
       },
       "oauth_client": [
         {
-          "client_id": "828425020051-jjbmtgdofjc2aar66vb0n439g6cdoiij.apps.googleusercontent.com",
+          "client_id": "392936409456-geh7l7o8feunkv0kppe5p4nn2p626sdi.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCLkBt5l56S6n2k4gN6gXE3msEB3XGhEpA"
+          "current_key": "AIzaSyDkHHCBRce6UBqm1Ga2jAWAmKblcM5agoY"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "828425020051-jjbmtgdofjc2aar66vb0n439g6cdoiij.apps.googleusercontent.com",
+              "client_id": "392936409456-geh7l7o8feunkv0kppe5p4nn2p626sdi.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

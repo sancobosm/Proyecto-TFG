@@ -1,5 +1,6 @@
 package cobos.santiago.ui.loginScreen
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -9,16 +10,18 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import cobos.santiago.MyField
-import cobos.santiago.MyFieldPassword
-import cobos.santiago.MyForgotPassword
+import cobos.santiago.*
 import cobos.santiago.R
 import cobos.santiago.data.remote.Auth
 import cobos.santiago.ui.viewmodels.LoginViewModel
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 @Composable
 fun MyLoginView(navController: NavController) {
@@ -43,9 +46,9 @@ fun MyLoginView(navController: NavController) {
         Spacer(modifier = Modifier.size(20.dp))
         MyField(text = loginText,
             {
-            viewModel.onTextChanged(it)
-            viewModel.onLoginChanged(it,passwordText)
-        }, "Email",isLoginError)
+                viewModel.onTextChanged(it)
+                viewModel.onLoginChanged(it,passwordText)
+            }, "Email",isLoginError)
         Spacer(modifier = Modifier.size(20.dp))
         MyFieldPassword(text = passwordText, {
             viewModel.onPasswordChanged(it)
@@ -55,7 +58,7 @@ fun MyLoginView(navController: NavController) {
         Button(
             modifier = Modifier
                 .width(200.dp),
-            enabled = true,
+            enabled = isButtonEnabled,
             onClick = {
                 //navController.navigate(AppScreens.HomeScreen.ruta)
                 auth.makeLogin(loginText, passwordText, navController){
@@ -69,20 +72,21 @@ fun MyLoginView(navController: NavController) {
         Spacer(modifier = Modifier.size(20.dp))
         MyForgotPassword()
         Spacer(modifier = Modifier.size(30.dp))
-        MySocialMediaButtom(R.drawable.google_vector, "google")
-        Spacer(modifier = Modifier.size(10.dp))
-        MySocialMediaButtom(R.drawable.facebook, "facebook")
+        MySocialMediaButtom(R.drawable.google_vector, "google"){
 
+        }
+        Spacer(modifier = Modifier.size(10.dp))
+        MySocialMediaButtom(R.drawable.facebook, "facebook",{})
     }
 }
 
 @Composable
-fun MySocialMediaButtom(drawable: Int, s: String) {
+fun MySocialMediaButtom(drawable: Int, s: String, onClick:()->Unit ) {
     OutlinedButton(
         modifier = Modifier
             .height(50.dp)
             .width(2000.dp),
-        onClick = { /*TODO*/ }) {
+        onClick = { onClick }) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Image(
                 painterResource(drawable),

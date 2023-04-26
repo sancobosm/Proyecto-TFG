@@ -9,19 +9,20 @@ import cobos.santiago.SplashScreen
 import cobos.santiago.ui.mainScreen.HomeScreen
 
 @Composable
-fun AppNavigation(){
+fun AppNavigation() {
     val navController = rememberNavController()
+
     NavHost(
         navController = navController,
         startDestination = AppScreens.SplashScreen.ruta
-    ){
-        composable(AppScreens.SplashScreen.ruta){
+    ) {
+        composable(AppScreens.SplashScreen.ruta) {
             SplashScreen(navController)
         }
-        composable(AppScreens.MainActivity.ruta){
+        composable(AppScreens.MainActivity.ruta) {
             MyFirstScreen(navController)
         }
-        composable(AppScreens.HomeScreen.ruta){
+        composable(AppScreens.HomeScreen.ruta) {
             HomeScreen()
         }
     }

@@ -10,16 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import cobos.santiago.navigation.AppNavigation
 import com.example.compose.MusikTheme
-import com.google.android.gms.auth.api.identity.BeginSignInRequest
-import com.google.android.gms.auth.api.identity.SignInClient
 import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var oneTapClient: SignInClient
-    private lateinit var signInRequest: BeginSignInRequest
-    private lateinit var signUpRequest: BeginSignInRequest
     @SuppressLint("CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +26,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                   AppNavigation()
+                    AppNavigation()
                 }
             }
         }

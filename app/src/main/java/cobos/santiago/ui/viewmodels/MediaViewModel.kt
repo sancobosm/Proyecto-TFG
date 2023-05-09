@@ -1,10 +1,11 @@
 package cobos.santiago.ui.viewmodels
 
-
 import android.content.ContentValues
 import android.net.Uri
 import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +13,7 @@ import androidx.lifecycle.viewmodel.compose.SavedStateHandleSaveableApi
 import androidx.lifecycle.viewmodel.compose.saveable
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
+import cobos.santiago.data.entities.Song
 import com.cursokotlin.music_service.service.PlayerEvent
 import com.cursokotlin.music_service.service.SimpleMediaServiceHandler
 import com.cursokotlin.music_service.service.SimpleMediaState
@@ -42,6 +44,9 @@ class SimpleMediaViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<UIState>(UIState.Initial)
     val uiState = _uiState.asStateFlow()
 
+    val songs = mutableListOf<Song>()
+    var currentSong: Song? by mutableStateOf(null)
+
     init {
         viewModelScope.launch {
             getAllSongs()
@@ -60,11 +65,18 @@ class SimpleMediaViewModel @Inject constructor(
         }
     }
 
+    fun playSongAtIndex(index: Int) {
+        viewModelScope.launch {
+            simpleMediaServiceHandler.playSongAtIndex(index)
+        }
+    }
+
     fun getAllSongs() {
         docRef.get()
             .addOnSuccessListener { document ->
                 if (document != null) {
-                    loadData(document.documents)
+                    val documentSnapshotList = document.documents
+                    println("${loadData(documentSnapshotList)}************************************************************")
                 } else {
                     Log.d(ContentValues.TAG, "No such document")
                 }
@@ -84,6 +96,7 @@ class SimpleMediaViewModel @Inject constructor(
         when (uiEvent) {
             UIEvent.Backward -> simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Backward)
             UIEvent.Forward -> simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Forward)
+            UIEvent.Next -> simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Next)
             UIEvent.PlayPause -> simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.PlayPause)
             is UIEvent.UpdateProgress -> {
                 progress = uiEvent.newProgress
@@ -108,16 +121,25 @@ class SimpleMediaViewModel @Inject constructor(
         progressString = formatDuration(currentProgress)
     }
 
-    
-    private fun loadData(documentSnapshotList: List<DocumentSnapshot>) {
-        val mediaItemList = mutableListOf<MediaItem>()
 
+    private fun loadData(documentSnapshotList: List<DocumentSnapshot>): Int {
+        val mediaItemList = mutableListOf<MediaItem>()
+        var x = 0
         for (documentSnapshot in documentSnapshotList) {
             val url = documentSnapshot.getString("url")
             val imageUrl = documentSnapshot.getString("imageUrl")
             val name = documentSnapshot.getString("name")
+            val song = Song()
 
             if (url != null && imageUrl != null && name != null) {
+                song.id = x
+                song.name = name
+                song.imageUrl = imageUrl
+                song.url = url
+
+                x++
+                songs.add(song)
+
                 val mediaItem = MediaItem.Builder()
                     .setUri(url)
                     .setMediaMetadata(
@@ -129,12 +151,13 @@ class SimpleMediaViewModel @Inject constructor(
                             .build()
                     )
                     .build()
-
                 mediaItemList.add(mediaItem)
             }
         }
 
+
         simpleMediaServiceHandler.addMediaItemList(mediaItemList)
+        return mediaItemList.size
     }
 }
 
@@ -142,6 +165,7 @@ sealed class UIEvent {
     object PlayPause : UIEvent()
     object Backward : UIEvent()
     object Forward : UIEvent()
+    object Next : UIEvent()
     data class UpdateProgress(val newProgress: Float) : UIEvent()
 }
 

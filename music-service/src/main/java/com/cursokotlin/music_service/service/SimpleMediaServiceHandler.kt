@@ -28,15 +28,43 @@ class SimpleMediaServiceHandler @Inject constructor(
         player.prepare()
     }
 
+
+    suspend fun playSongAtIndex(index: Int) {
+        val mediaItemCount = player.mediaItemCount
+        if (index in 0 until mediaItemCount) {
+            player.setMediaItem(player.getMediaItemAt(index))
+            player.prepare()
+            player.play()
+            _simpleMediaState.value = SimpleMediaState.Playing(isPlaying = true)
+            startProgressUpdate()
+        } else {
+            player.stop()
+        }
+    }
+
     fun addMediaItemList(mediaItemList: List<MediaItem>) {
         player.setMediaItems(mediaItemList)
         player.prepare()
     }
 
+    @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
     suspend fun onPlayerEvent(playerEvent: PlayerEvent) {
         when (playerEvent) {
             PlayerEvent.Backward -> player.seekBack()
             PlayerEvent.Forward -> player.seekForward()
+            PlayerEvent.Next -> {
+                val currentIndex = player.currentWindowIndex
+                val nextIndex = currentIndex + 1
+                val mediaItemCount = player.mediaItemCount
+
+                if (nextIndex < mediaItemCount) {
+                    playSongAtIndex(nextIndex)
+                } else {
+                    // Si no hay más canciones en la cola, detener la reproducción
+                    player.stop()
+                    _simpleMediaState.value = SimpleMediaState.Playing(isPlaying = false)
+                }
+            }
             PlayerEvent.PlayPause -> {
                 if (player.isPlaying) {
                     player.pause()
@@ -92,6 +120,7 @@ sealed class PlayerEvent {
     object Backward : PlayerEvent()
     object Forward : PlayerEvent()
     object Stop : PlayerEvent()
+    object Next : PlayerEvent()
     data class UpdateProgress(val newProgress: Float) : PlayerEvent()
 }
 

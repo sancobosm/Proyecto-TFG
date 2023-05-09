@@ -49,7 +49,7 @@ internal fun PlayerControls(
             contentDescription = "Forward Button",
             modifier = Modifier
                 .clip(CircleShape)
-                .clickable(onClick = { onUiEvent(UIEvent.Forward) })
+                .clickable(onClick = { onUiEvent(UIEvent.Next) })
                 .padding(12.dp)
                 .size(34.dp)
         )

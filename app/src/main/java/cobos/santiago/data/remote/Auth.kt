@@ -37,5 +37,9 @@ class Auth() {
         }
     }
 
+    fun isUserLoggedIn(): Boolean {
+        val firebaseUser = db.currentUser
+        return firebaseUser != null
+    }
 
 }

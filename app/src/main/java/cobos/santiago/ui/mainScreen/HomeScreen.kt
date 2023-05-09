@@ -1,26 +1,22 @@
 package cobos.santiago.ui.mainScreen
 
 import android.R
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import cobos.santiago.ui.componentes.PlayerBar
 import cobos.santiago.ui.componentes.PlayerControls
 import cobos.santiago.ui.viewmodels.SimpleMediaViewModel
@@ -51,10 +47,26 @@ internal fun HomeScreen(
                     startService()
                 }
 
-                ReadyContent(vm = vm)
-            }
-        }
+                Column {
+                    LazyColumn(
+                        modifier = Modifier.padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(
+                            items = vm.songs,
+                            key = {
+                                it.id
+                            }
+                        ) { song ->
+                            MySongItem(song.name, Modifier.height(70.dp))
+                        }
+                    }
 
+                    ReadyContent(vm = vm)
+                }
+            }
+
+        }
     }
 }
 
@@ -62,11 +74,8 @@ internal fun HomeScreen(
 private fun ReadyContent(
     vm: SimpleMediaViewModel,
 ) {
-
     Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
     ) {
         SimpleMediaPlayerUI(
             durationString = vm.formatDuration(vm.duration),
@@ -75,12 +84,13 @@ private fun ReadyContent(
                 else R.drawable.ic_media_play
             },
             progressProvider = { Pair(vm.progress, vm.progressString) },
-            onUiEvent = vm::onUIEvent,
+            onUiEvent = { event -> vm.onUIEvent(event) },
+            modifier = Modifier.padding(16.dp)
         )
-
-
     }
 }
+
+
 @Composable
 fun SimpleMediaPlayerUI(
     modifier: Modifier = Modifier,
@@ -114,12 +124,16 @@ fun SimpleMediaPlayerUI(
     }
 }
 
+@Composable
+fun MySongItem(name: String, modifier: Modifier) {
+    Card(modifier = modifier) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .background(Color.Red)
+        ) {
 
-
-
-
-
-
-
-
+        }
+    }
+}
 

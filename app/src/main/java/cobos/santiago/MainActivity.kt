@@ -50,6 +50,9 @@ class MainActivity : ComponentActivity() {
                                 vm = viewModel,
                                 startService = ::startService
                             )
+                            /*HomeMusicScreen(
+                                startService = ::startService
+                            )*/
                         }
                     }
                 }

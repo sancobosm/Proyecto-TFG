@@ -2,7 +2,8 @@ package cobos.santiago
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -10,20 +11,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
+import cobos.santiago.data.remote.Auth
 import cobos.santiago.navigation.AppScreens
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
-import kotlinx.coroutines.delay
 import com.example.compose.md_theme_dark_onPrimary
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
+    val auth = Auth()
     LaunchedEffect(key1 = true) {
         delay(2000)
         navController.popBackStack()
-        navController.navigate(AppScreens.MainActivity.rute)
+        if (auth.isUserLoggedIn()) {
+            navController.navigate(AppScreens.HomeScreen.rute)
+        } else {
+            navController.navigate(AppScreens.MainActivity.rute)
+        }
     }
 
     val systemUiController = rememberSystemUiController()

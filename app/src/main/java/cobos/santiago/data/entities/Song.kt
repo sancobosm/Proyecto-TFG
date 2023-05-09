@@ -1,9 +1,8 @@
 package cobos.santiago.data.entities
 
 data class Song(
-    val mediaId: String = "",
-    val title: String = "",
-    val subtitle: String = "",
-    val songUrl: String = "",
-    val imageUrl: String = ""
+    var id: Int = 0,
+    var url: String = "",
+    var imageUrl: String = "",
+    var name: String = ""
 )

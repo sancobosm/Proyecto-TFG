@@ -6,7 +6,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import cobos.santiago.MyFirstScreen
 import cobos.santiago.SplashScreen
-import cobos.santiago.ui.mainScreen.HomeScreen
 
 @Composable
 fun AppNavigation() {
@@ -23,7 +22,7 @@ fun AppNavigation() {
             MyFirstScreen(navController)
         }
         composable(AppScreens.HomeScreen.rute) {
-            HomeScreen()
+            // HomeScreen()
         }
     }
 }

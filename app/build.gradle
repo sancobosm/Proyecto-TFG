@@ -102,12 +102,6 @@ dependencies {
     //Accompanist
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.23.1"
 
-    //exoplayer
-    // ExoPlayer
-    api "com.google.android.exoplayer:exoplayer-core:$exoplayerVersion"
-    api "com.google.android.exoplayer:exoplayer-ui:$exoplayerVersion"
-    api "com.google.android.exoplayer:extension-mediasession:$exoplayerVersion"
-
 
     // Firebase Firestore
     implementation "com.google.firebase:firebase-firestore:24.5.0"

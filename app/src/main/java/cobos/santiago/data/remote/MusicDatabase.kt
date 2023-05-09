@@ -1,26 +1,23 @@
 package cobos.santiago.data.remote
 
-import cobos.santiago.data.entities.Song
-import cobos.santiago.other.Constants.SONG_COLLECTION
-import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.tasks.await
-import java.lang.Exception
+import android.content.ContentValues.TAG
+import android.util.Log
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
 class MusicDatabase {
-    private val db = FirebaseFirestore.getInstance()
-
-    private val songCollection = db.collection(SONG_COLLECTION)
-
-
-    suspend fun getAllSongs(): List<Song> {
-        return try {
-            songCollection
-                .get()
-                .await()
-                .toObjects(Song::class.java)
-        } catch (e: Exception) {
-            emptyList()
-        }
+    val db = Firebase.firestore
+    val docRef = db.collection("songs")
+    fun getAllSongs() {
+        docRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                } else {
+                    Log.d(TAG, "No such document")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(TAG, "get failed with ", exception)
+            }
     }
-
 }

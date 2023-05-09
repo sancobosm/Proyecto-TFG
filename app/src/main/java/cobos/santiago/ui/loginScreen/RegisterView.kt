@@ -31,10 +31,10 @@ fun MyBody() {
     var nameText by remember { mutableStateOf(("")) }
     var lastNameText by remember { mutableStateOf(("")) }
 
-    val emailText:String by viewModel.email.observeAsState(initial = "")
-    val passwordText:String by viewModel.password.observeAsState(initial = "")
-    val confirmPasswordText:String by viewModel.confirm_password.observeAsState(initial = "")
-    val isButtonEnabled:Boolean by viewModel.isButtonEnabled.observeAsState(initial = false)
+    val emailText: String by viewModel.email.observeAsState(initial = "")
+    val passwordText: String by viewModel.password.observeAsState(initial = "")
+    val confirmPasswordText: String by viewModel.confirm_password.observeAsState(initial = "")
+    val isButtonEnabled: Boolean by viewModel.isButtonEnabled.observeAsState(initial = false)
 
     //for register
     val auth = Auth()
@@ -47,33 +47,33 @@ fun MyBody() {
 
         MyField(text = emailText, {
             viewModel.onTextChanged(it)
-            viewModel.onRegisterChanged(it,passwordText,confirmPasswordText)
-        }, "Email",false)
+            viewModel.onRegisterChanged(it, passwordText, confirmPasswordText)
+        }, "Email", false)
         Spacer(Modifier.size(10.dp))
         MyField(text = nameText, {
             nameText = it
-        }, "Name",false)
+        }, "Name", false)
         Spacer(Modifier.size(10.dp))
         MyField(text = lastNameText, {
             lastNameText = it
-        }, "Last name",false)
+        }, "Last name", false)
         Spacer(Modifier.size(10.dp))
         MyFieldPassword(text = passwordText, {
             viewModel.onPasswordChanged(it)
-            viewModel.onRegisterChanged(emailText,it,confirmPasswordText)
+            viewModel.onRegisterChanged(emailText, it, confirmPasswordText)
         }, "Password", true)
         Spacer(Modifier.size(10.dp))
         MyFieldPassword(text = confirmPasswordText, {
             viewModel.onConfirmPasswordChanged(it)
-            viewModel.onRegisterChanged(emailText,passwordText,it)
+            viewModel.onRegisterChanged(emailText, passwordText, it)
         }, "Confirm password", true)
         Spacer(Modifier.size(50.dp))
         Button(
             modifier = Modifier
                 .width(300.dp),
-            enabled = true,
+            enabled = isButtonEnabled,
             onClick = {
-                auth.createUser(emailText,passwordText)
+                auth.createUser(emailText, passwordText)
             }) {
             Text("Confirm Registration")
         }
@@ -83,8 +83,7 @@ fun MyBody() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyField(text: String, onValueChanged: (String) -> Unit, s: String, errorSate:Boolean) {
-    var passwordVisibility by remember { mutableStateOf(false) }
+fun MyField(text: String, onValueChanged: (String) -> Unit, s: String, errorSate: Boolean) {
     TextField(
         value = text,
         onValueChange = onValueChanged,
@@ -98,7 +97,12 @@ fun MyField(text: String, onValueChanged: (String) -> Unit, s: String, errorSate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyFieldPassword(text: String, onValueChanged: (String) -> Unit, s: String, errorState: Boolean) {
+fun MyFieldPassword(
+    text: String,
+    onValueChanged: (String) -> Unit,
+    s: String,
+    errorState: Boolean
+) {
     var passwordVisibility by remember { mutableStateOf(false) }
     TextField(
         value = text,

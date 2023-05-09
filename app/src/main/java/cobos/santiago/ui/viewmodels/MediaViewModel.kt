@@ -1,7 +1,9 @@
 package cobos.santiago.ui.viewmodels
 
 
+import android.content.ContentValues
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -13,6 +15,9 @@ import androidx.media3.common.MediaMetadata
 import com.cursokotlin.music_service.service.PlayerEvent
 import com.cursokotlin.music_service.service.SimpleMediaServiceHandler
 import com.cursokotlin.music_service.service.SimpleMediaState
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,14 +36,15 @@ class SimpleMediaViewModel @Inject constructor(
     var progress by savedStateHandle.saveable { mutableStateOf(0f) }
     var progressString by savedStateHandle.saveable { mutableStateOf("00:00") }
     var isPlaying by savedStateHandle.saveable { mutableStateOf(false) }
+    val db = Firebase.firestore
+    private val docRef = db.collection("songs")
 
     private val _uiState = MutableStateFlow<UIState>(UIState.Initial)
     val uiState = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            loadData()
-
+            getAllSongs()
             simpleMediaServiceHandler.simpleMediaState.collect { mediaState ->
                 when (mediaState) {
                     is SimpleMediaState.Buffering -> calculateProgressValues(mediaState.progress)
@@ -52,6 +58,20 @@ class SimpleMediaViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun getAllSongs() {
+        docRef.get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    loadData(document.documents)
+                } else {
+                    Log.d(ContentValues.TAG, "No such document")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d(ContentValues.TAG, "get failed with ", exception)
+            }
     }
 
     override fun onCleared() {
@@ -88,37 +108,34 @@ class SimpleMediaViewModel @Inject constructor(
         progressString = formatDuration(currentProgress)
     }
 
-    private fun loadData() {
-        val mediaItem = MediaItem.Builder()
-            .setUri("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3")
-            .setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setFolderType(MediaMetadata.FOLDER_TYPE_ALBUMS)
-                    .setArtworkUri(Uri.parse("https://i.pinimg.com/736x/4b/02/1f/4b021f002b90ab163ef41aaaaa17c7a4.jpg"))
-                    .setAlbumTitle("SoundHelix")
-                    .setDisplayTitle("Song 1")
+    
+    private fun loadData(documentSnapshotList: List<DocumentSnapshot>) {
+        val mediaItemList = mutableListOf<MediaItem>()
+
+        for (documentSnapshot in documentSnapshotList) {
+            val url = documentSnapshot.getString("url")
+            val imageUrl = documentSnapshot.getString("imageUrl")
+            val name = documentSnapshot.getString("name")
+
+            if (url != null && imageUrl != null && name != null) {
+                val mediaItem = MediaItem.Builder()
+                    .setUri(url)
+                    .setMediaMetadata(
+                        MediaMetadata.Builder()
+                            .setFolderType(MediaMetadata.FOLDER_TYPE_ALBUMS)
+                            .setArtworkUri(Uri.parse(imageUrl))
+                            .setAlbumTitle("SoundHelix")
+                            .setDisplayTitle(name)
+                            .build()
+                    )
                     .build()
-            ).build()
 
-        //val mediaItemList = mutableListOf<MediaItem>()
-        //(1..17).forEach {
-        //    mediaItemList.add(
-        //        MediaItem.Builder()
-        //            .setUri("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-$it.mp3")
-        //            .setMediaMetadata(MediaMetadata.Builder()
-        //                .setFolderType(MediaMetadata.FOLDER_TYPE_ALBUMS)
-        //                .setArtworkUri(Uri.parse("https://cdns-images.dzcdn.net/images/cover/1fddc1ab0535ee34189dc4c9f5f87bf9/264x264.jpg"))
-        //                .setAlbumTitle("SoundHelix")
-        //                .setDisplayTitle("Song $it")
-        //                .build()
-        //            ).build()
-        //    )
-        //}
+                mediaItemList.add(mediaItem)
+            }
+        }
 
-        simpleMediaServiceHandler.addMediaItem(mediaItem)
-        //simpleMediaServiceHandler.addMediaItemList(mediaItemList)
+        simpleMediaServiceHandler.addMediaItemList(mediaItemList)
     }
-
 }
 
 sealed class UIEvent {
@@ -132,3 +149,4 @@ sealed class UIState {
     object Initial : UIState()
     object Ready : UIState()
 }
+

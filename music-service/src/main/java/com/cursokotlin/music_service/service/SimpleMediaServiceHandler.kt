@@ -31,7 +31,7 @@ class SimpleMediaServiceHandler @Inject constructor(
 
     suspend fun playSongAtIndex(index: Int) {
         val mediaItemCount = player.mediaItemCount
-        if (index in 0 until mediaItemCount) {
+        if (index >= 0) {
             player.setMediaItem(player.getMediaItemAt(index))
             player.prepare()
             player.play()
@@ -43,6 +43,7 @@ class SimpleMediaServiceHandler @Inject constructor(
     }
 
     fun addMediaItemList(mediaItemList: List<MediaItem>) {
+        println("${mediaItemList.get(3).mediaId}****************mediaId")
         player.setMediaItems(mediaItemList)
         player.prepare()
     }
@@ -79,6 +80,11 @@ class SimpleMediaServiceHandler @Inject constructor(
             is PlayerEvent.UpdateProgress -> player.seekTo((player.duration * playerEvent.newProgress).toLong())
         }
     }
+
+    fun currentSong(): MediaItem? {
+        return player.currentMediaItem
+    }
+
 
     @SuppressLint("SwitchIntDef")
     override fun onPlaybackStateChanged(playbackState: Int) {

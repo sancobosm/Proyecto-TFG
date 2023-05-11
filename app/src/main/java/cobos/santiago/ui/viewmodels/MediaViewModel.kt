@@ -86,6 +86,15 @@ class SimpleMediaViewModel @Inject constructor(
             }
     }
 
+    fun getCurrentSong() {
+        val song = simpleMediaServiceHandler.currentSong()
+        // currentSong = findSongById(song?.id)
+    }
+
+    private fun findSongById(id: Int?): Song? {
+        return songs.find { it.id.toInt() == id }
+    }
+
     override fun onCleared() {
         viewModelScope.launch {
             simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Stop)
@@ -124,24 +133,24 @@ class SimpleMediaViewModel @Inject constructor(
 
     private fun loadData(documentSnapshotList: List<DocumentSnapshot>): Int {
         val mediaItemList = mutableListOf<MediaItem>()
-        var x = 0
         for (documentSnapshot in documentSnapshotList) {
-            val url = documentSnapshot.getString("url")
-            val imageUrl = documentSnapshot.getString("imageUrl")
+            val id = documentSnapshot.id
             val name = documentSnapshot.getString("name")
+            val imageUrl = documentSnapshot.getString("imageUrl")
+            val songUrl = documentSnapshot.getString("songUrl")
             val song = Song()
 
-            if (url != null && imageUrl != null && name != null) {
-                song.id = x
+            if (songUrl != null && imageUrl != null && name != null) {
+                song.id = id
                 song.name = name
                 song.imageUrl = imageUrl
-                song.url = url
+                song.songUrl = songUrl
 
-                x++
                 songs.add(song)
 
                 val mediaItem = MediaItem.Builder()
-                    .setUri(url)
+                    .setMediaId(id)
+                    .setUri(songUrl)
                     .setMediaMetadata(
                         MediaMetadata.Builder()
                             .setFolderType(MediaMetadata.FOLDER_TYPE_ALBUMS)

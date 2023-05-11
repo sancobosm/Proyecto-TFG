@@ -98,7 +98,7 @@ fun HomeContent(
                             MusicListItem(
                                 vm = vm,
                                 song = it,
-                                index = it.id
+                                index = it.id.toInt()
                             )
                         }
                     }

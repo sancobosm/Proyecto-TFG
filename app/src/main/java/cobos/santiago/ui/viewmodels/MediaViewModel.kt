@@ -3,9 +3,7 @@ package cobos.santiago.ui.viewmodels
 import android.content.ContentValues
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -47,7 +45,7 @@ class SimpleMediaViewModel @Inject constructor(
     val songs = mutableListOf<Song>()
     val mediaItemList = mutableListOf<MediaItem>()
 
-    var currentSong: Song? by mutableStateOf(null)
+    var currentIndex by savedStateHandle.saveable { mutableStateOf(0) }
 
     init {
         viewModelScope.launch {
@@ -70,6 +68,7 @@ class SimpleMediaViewModel @Inject constructor(
     fun playSongAtIndex(index: Int) {
         viewModelScope.launch {
             simpleMediaServiceHandler.playSongAtIndex(index)
+            currentIndex = index
         }
     }
 

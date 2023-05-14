@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -117,10 +118,10 @@ fun SimpleMediaPlayerUI(
     Card(
         modifier = modifier
             .padding(0.dp)
-            .background(Color.LightGray)
+            .clip(shape = RoundedCornerShape(20.dp))
     ) {
         Row(
-
+            modifier = Modifier
         ) {
             PlayerBar(
                 progress = progress,
@@ -150,10 +151,7 @@ fun SimpleMediaPlayerUI(
                     .padding(8.dp)
                     .size(56.dp)
             )
-            /*PlayerControls(
-                playResourceProvider = playResourceProvider,
-                onUiEvent = onUiEvent
-            )*/
+
         }
     }
 }
@@ -199,6 +197,7 @@ fun MySongItem(name: String, modifier: Modifier, song: Song, vm: SimpleMediaView
             text = song.name,
             maxLines = 2,
             style = androidx.compose.material.MaterialTheme.typography.subtitle1,
+            color = Color(0xFFB5B5B5),
             modifier = Modifier.constrainAs(songTitle) {
                 linkTo(
                     start = parent.start,
@@ -218,6 +217,7 @@ fun MySongItem(name: String, modifier: Modifier, song: Song, vm: SimpleMediaView
                 text = song.name,
                 maxLines = 2,
                 style = androidx.compose.material.MaterialTheme.typography.subtitle2,
+                color = Color(0xFFB5B5B5),
                 modifier = Modifier.constrainAs(songSubtitle) {
                     linkTo(
                         start = parent.start,
@@ -259,7 +259,7 @@ fun HomeContent(
     val state = vm.uiState.collectAsStateWithLifecycle()
 
     Column(modifier = modifier) {
-        val appBarColor = androidx.compose.material.MaterialTheme.colors.surface.copy(alpha = 0.87f)
+        val appBarColor = Color.LightGray
         Spacer(
             Modifier
                 .background(appBarColor)

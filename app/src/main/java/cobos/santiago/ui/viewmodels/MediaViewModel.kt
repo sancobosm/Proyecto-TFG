@@ -45,6 +45,8 @@ class SimpleMediaViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     val songs = mutableListOf<Song>()
+    val mediaItemList = mutableListOf<MediaItem>()
+
     var currentSong: Song? by mutableStateOf(null)
 
     init {
@@ -132,7 +134,7 @@ class SimpleMediaViewModel @Inject constructor(
 
 
     private fun loadData(documentSnapshotList: List<DocumentSnapshot>): Int {
-        val mediaItemList = mutableListOf<MediaItem>()
+        //val mediaItemList = mutableListOf<MediaItem>()
         for (documentSnapshot in documentSnapshotList) {
             val id = documentSnapshot.id
             val name = documentSnapshot.getString("name")
@@ -161,11 +163,13 @@ class SimpleMediaViewModel @Inject constructor(
                     )
                     .build()
                 mediaItemList.add(mediaItem)
+                simpleMediaServiceHandler.mediaItemList.add(mediaItem)
             }
         }
 
 
         simpleMediaServiceHandler.addMediaItemList(mediaItemList)
+
         return mediaItemList.size
     }
 }

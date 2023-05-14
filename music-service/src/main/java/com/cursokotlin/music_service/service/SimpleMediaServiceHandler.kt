@@ -1,6 +1,7 @@
 package com.cursokotlin.music_service.service
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
@@ -18,6 +19,8 @@ class SimpleMediaServiceHandler @Inject constructor(
 
     private var job: Job? = null
 
+    val mediaItemList = mutableListOf<MediaItem>()
+
     init {
         player.addListener(this)
         job = Job()
@@ -32,7 +35,7 @@ class SimpleMediaServiceHandler @Inject constructor(
     suspend fun playSongAtIndex(index: Int) {
         val mediaItemCount = player.mediaItemCount
         if (index >= 0) {
-            player.setMediaItem(player.getMediaItemAt(index))
+            player.setMediaItem(mediaItemList[index])
             player.prepare()
             player.play()
             _simpleMediaState.value = SimpleMediaState.Playing(isPlaying = true)
@@ -42,9 +45,10 @@ class SimpleMediaServiceHandler @Inject constructor(
         }
     }
 
-    fun addMediaItemList(mediaItemList: List<MediaItem>) {
-        println("${mediaItemList.get(3).mediaId}****************mediaId")
-        player.setMediaItems(mediaItemList)
+    fun addMediaItemList(mediaItemListAdd: List<MediaItem>) {
+        //println("${mediaItemList.get(3).mediaId}****************mediaId")
+        Log.i("informacion", "${mediaItemList.size} MEDIA ITEM LIST")
+        player.setMediaItems(mediaItemListAdd)
         player.prepare()
     }
 

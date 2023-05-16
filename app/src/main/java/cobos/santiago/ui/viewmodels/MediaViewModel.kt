@@ -68,7 +68,8 @@ class SimpleMediaViewModel @Inject constructor(
     fun playSongAtIndex(index: Int) {
         viewModelScope.launch {
             simpleMediaServiceHandler.playSongAtIndex(index)
-            currentIndex = index
+            Log.i("informacion", "$index")
+            Log.i("informacion", "$currentIndex")
         }
     }
 

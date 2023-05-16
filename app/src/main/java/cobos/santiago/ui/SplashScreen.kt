@@ -13,10 +13,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import cobos.santiago.data.remote.Auth
 import cobos.santiago.navigation.AppScreens
+import cobos.santiago.ui.theme.md_theme_dark_onPrimary
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.example.compose.md_theme_dark_onPrimary
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.delay
 
@@ -27,9 +27,9 @@ fun SplashScreen(navController: NavHostController) {
         delay(2000)
         navController.popBackStack()
         if (auth.isUserLoggedIn()) {
-            navController.navigate(AppScreens.HomeScreen.rute)
+            navController.navigate(AppScreens.HomeScreen.route)
         } else {
-            navController.navigate(AppScreens.MainActivity.rute)
+            navController.navigate(AppScreens.MainActivity.route)
         }
     }
 

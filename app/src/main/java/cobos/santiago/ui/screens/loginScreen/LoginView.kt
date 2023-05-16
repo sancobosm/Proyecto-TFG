@@ -1,27 +1,26 @@
-package cobos.santiago.ui.loginScreen
+package cobos.santiago.ui.screens.loginScreen
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import cobos.santiago.*
+import cobos.santiago.MyField
+import cobos.santiago.MyFieldPassword
+import cobos.santiago.MyForgotPassword
 import cobos.santiago.R
 import cobos.santiago.data.remote.Auth
 import cobos.santiago.ui.viewmodels.LoginViewModel
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 
 @Composable
 fun MyLoginView(navController: NavController) {
@@ -29,9 +28,9 @@ fun MyLoginView(navController: NavController) {
     val viewModel = hiltViewModel<LoginViewModel>()
 
     //live data logic
-    val loginText:String by viewModel.email.observeAsState(initial = "")
-    val passwordText:String by viewModel.password.observeAsState(initial = "")
-    val isButtonEnabled:Boolean by viewModel.isButtonEnabled.observeAsState(initial = false)
+    val loginText: String by viewModel.email.observeAsState(initial = "")
+    val passwordText: String by viewModel.password.observeAsState(initial = "")
+    val isButtonEnabled: Boolean by viewModel.isButtonEnabled.observeAsState(initial = false)
 
     val isLoginError: Boolean by viewModel.isLoginSuccess.observeAsState(initial = false)
 
@@ -47,13 +46,14 @@ fun MyLoginView(navController: NavController) {
         MyField(text = loginText,
             {
                 viewModel.onTextChanged(it)
-                viewModel.onLoginChanged(it,passwordText)
-            }, "Email",isLoginError)
+                viewModel.onLoginChanged(it, passwordText)
+            }, "Email", isLoginError
+        )
         Spacer(modifier = Modifier.size(20.dp))
         MyFieldPassword(text = passwordText, {
             viewModel.onPasswordChanged(it)
-            viewModel.onLoginChanged(loginText,it)
-        }, "Password",isLoginError)
+            viewModel.onLoginChanged(loginText, it)
+        }, "Password", isLoginError)
         Spacer(modifier = Modifier.size(30.dp))
         Button(
             modifier = Modifier
@@ -61,10 +61,10 @@ fun MyLoginView(navController: NavController) {
             enabled = isButtonEnabled,
             onClick = {
                 //navController.navigate(AppScreens.HomeScreen.ruta)
-                auth.makeLogin(loginText, passwordText, navController){
+                auth.makeLogin(loginText, passwordText, navController) {
                     //caso de error
                     viewModel.onLoginError(true)
-                    viewModel.onLoginChanged("","")
+                    viewModel.onLoginChanged("", "")
                 }
             }) {
             Text("Login")
@@ -72,16 +72,16 @@ fun MyLoginView(navController: NavController) {
         Spacer(modifier = Modifier.size(20.dp))
         MyForgotPassword()
         Spacer(modifier = Modifier.size(30.dp))
-        MySocialMediaButtom(R.drawable.google_vector, "google"){
+        MySocialMediaButtom(R.drawable.google_vector, "google") {
 
         }
         Spacer(modifier = Modifier.size(10.dp))
-        MySocialMediaButtom(R.drawable.facebook, "facebook",{})
+        MySocialMediaButtom(R.drawable.facebook, "facebook", {})
     }
 }
 
 @Composable
-fun MySocialMediaButtom(drawable: Int, s: String, onClick:()->Unit ) {
+fun MySocialMediaButtom(drawable: Int, s: String, onClick: () -> Unit) {
     OutlinedButton(
         modifier = Modifier
             .height(50.dp)

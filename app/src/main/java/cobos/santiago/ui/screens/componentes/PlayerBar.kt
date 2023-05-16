@@ -1,4 +1,4 @@
-package cobos.santiago.ui.componentes
+package cobos.santiago.ui.screens.componentes
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ExperimentalMaterial3Api

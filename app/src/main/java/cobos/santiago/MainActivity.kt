@@ -12,10 +12,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import cobos.santiago.navigation.AppScreens
-import cobos.santiago.ui.mainScreen.HomeScreen
+import cobos.santiago.ui.OptionsScreen
+import cobos.santiago.ui.screens.mainScreen.HomeScreen
+import cobos.santiago.ui.theme.MusikTheme
 import cobos.santiago.ui.viewmodels.SimpleMediaViewModel
 import com.cursokotlin.music_service.service.SimpleMediaService
-import com.example.compose.MusikTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -37,27 +38,28 @@ class MainActivity : ComponentActivity() {
 
                     NavHost(
                         navController = navController,
-                        startDestination = AppScreens.SplashScreen.rute
+                        startDestination = AppScreens.SplashScreen.route
                     ) {
-                        composable(AppScreens.SplashScreen.rute) {
+                        composable(AppScreens.SplashScreen.route) {
                             SplashScreen(navController)
                         }
-                        composable(AppScreens.MainActivity.rute) {
+                        composable(AppScreens.MainActivity.route) {
                             MyFirstScreen(navController)
                         }
-                        composable(AppScreens.HomeScreen.rute) {
+                        composable(AppScreens.HomeScreen.route) {
                             HomeScreen(
-                                vm = viewModel,
-                                startService = ::startService
+                                vm = viewModel, startService = ::startService
                             )
-                            /*HomeMusicScreen(
-                                startService = ::startService
-                            )*/
                         }
+                        composable(AppScreens.Options.route) {
+                            OptionsScreen()
+                        }
+                        // composable(AppScreens.Search.route) { SearchScreen() }
                     }
                 }
             }
         }
+
     }
 
     override fun onDestroy() {

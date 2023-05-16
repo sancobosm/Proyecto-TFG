@@ -1,4 +1,4 @@
-package cobos.santiago.ui.componentes
+package cobos.santiago.ui.screens.componentes
 
 import android.R
 import androidx.compose.foundation.Image

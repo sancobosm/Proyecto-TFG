@@ -30,7 +30,7 @@ class Auth() {
     ) {
         db.signInWithEmailAndPassword(user, password).addOnCompleteListener {
             if (it.isSuccessful) {
-                navController.navigate(AppScreens.HomeScreen.rute)
+                navController.navigate(AppScreens.HomeScreen.route)
             } else {
                 onError()
             }

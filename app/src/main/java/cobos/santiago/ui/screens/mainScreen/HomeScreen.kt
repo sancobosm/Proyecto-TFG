@@ -1,17 +1,21 @@
-package cobos.santiago.ui.mainScreen
+package cobos.santiago.ui.screens.mainScreen
 
 import android.R
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.ContentAlpha
+import androidx.compose.material.LocalContentAlpha
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -27,7 +31,12 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cobos.santiago.data.entities.Song
-import cobos.santiago.ui.componentes.PlayerBar
+import cobos.santiago.ui.screens.componentes.PlayerBar
+import cobos.santiago.ui.theme.SpotifyTextStyleDark
+import cobos.santiago.ui.theme.SpotifyTextStyleDarkArtist
+import cobos.santiago.ui.theme.SpotifyTextStyleLight
+import cobos.santiago.ui.theme.SpotifyTextStyleLigtArtist
+import cobos.santiago.ui.viewmodels.BottomBarViewModel
 import cobos.santiago.ui.viewmodels.SimpleMediaViewModel
 import cobos.santiago.ui.viewmodels.UIEvent
 import cobos.santiago.ui.viewmodels.UIState
@@ -37,11 +46,12 @@ import com.google.accompanist.coil.rememberCoilPainter
 @Composable
 internal fun HomeScreen(
     vm: SimpleMediaViewModel,
-    startService: () -> Unit,
+    startService: () -> Unit
 ) {
     val state = vm.uiState.collectAsStateWithLifecycle()
+    val navigationViewModel = hiltViewModel<BottomBarViewModel>()
 
-    Box(
+    BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
         //      .background(MaterialTheme.colorScheme.background)
     ) {
@@ -56,10 +66,11 @@ internal fun HomeScreen(
                     startService()
                 }
 
-                Column {
+                Box(Modifier.fillMaxSize()) {
                     LazyColumn(
-                        modifier = Modifier.padding(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        modifier = Modifier.padding(0.dp)
+                        /*.weight(6f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)*/
                     ) {
                         items(items = vm.songs, key = {
                             it.id
@@ -68,18 +79,29 @@ internal fun HomeScreen(
                                 song.name, Modifier.height(70.dp), song, vm, song.id.toInt()
                             )
                         }
+                        // Agregar un espacio adicional al final
+                        item {
+                            Spacer(modifier = Modifier.height(110.dp))
+                        }
                     }
-                    ReadyContent(vm = vm)
+                    ReadyContent(
+                        vm = vm,
+                        modifier = Modifier
+                            .padding(bottom = 59.dp, start = 5.dp, end = 5.dp)
+                            .align(Alignment.BottomCenter)
+                        // .weight(1f)
+                    )
+
                 }
             }
-
         }
     }
+
 }
 
 @Composable
 private fun ReadyContent(
-    vm: SimpleMediaViewModel,
+    vm: SimpleMediaViewModel, modifier: Modifier
 ) {
     SimpleMediaPlayerUI(
         durationString = vm.formatDuration(vm.duration),
@@ -90,7 +112,7 @@ private fun ReadyContent(
         },
         progressProvider = { Pair(vm.progress, vm.progressString) },
         onUiEvent = { event -> vm.onUIEvent(event) },
-        modifier = Modifier.padding(16.dp)
+        modifier = modifier
     )
 }
 
@@ -102,28 +124,55 @@ fun SimpleMediaPlayerUI(
     durationString: String,
     playResourceProvider: () -> Int,
     progressProvider: () -> Pair<Float, String>,
-    onUiEvent: (UIEvent) -> Unit
+    onUiEvent: (UIEvent) -> Unit,
 ) {
     val (progress, progressString) = progressProvider()
+    val isDarkTheme = isSystemInDarkTheme()
 
+    val textStyleName = if (isDarkTheme) SpotifyTextStyleDark else SpotifyTextStyleLight
+    val textStyleArtist =
+        if (isDarkTheme) SpotifyTextStyleDarkArtist else SpotifyTextStyleLigtArtist
     Card(
-        modifier = modifier.clip(shape = RoundedCornerShape(10.dp))
+        modifier = modifier
+            .clip(shape = RoundedCornerShape(10.dp))
+            .height(60.dp)
     ) {
-        Column(Modifier.fillMaxSize()) {
-            Spacer(modifier = Modifier.size(12.dp))
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(start = 5.dp)
+        ) {
+            Spacer(modifier = Modifier.size(2.dp))
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                //       .weight(1f), // Peso para expandir todo el ancho
+                    .fillMaxWidth()
+                    .padding(start = 5.dp, top = 5.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End // Alineación a la derecha
+                horizontalArrangement = Arrangement.SpaceBetween // Alineación a la derecha
 
             ) {
 
                 Image(
                     painter = rememberCoilPainter(request = vm.songs[vm.currentIndex].imageUrl),
-                    contentDescription = "Current song image"
+                    contentDescription = "Current song image",
+                    Modifier
+                        .size(45.dp)
+                        .clip(androidx.compose.material.MaterialTheme.shapes.medium),
+                    contentScale = ContentScale.Crop,
                 )
+                Text(
+                    text = vm.songs[vm.currentIndex].name + "  ■  " + vm.songs[vm.currentIndex].name,
+                    style = textStyleName,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 10.dp)
+                )
+                /*Text(
+                    text = vm.songs[vm.currentIndex].name,
+                    style = textStyleArtist,
+                    modifier = Modifier.padding(bottom = 0.dp, start = 0.dp, end = 0.dp)
+                )*/
+
                 Image(
                     painter = painterResource(id = playResourceProvider()),
                     contentDescription = "Play/Pause Button",
@@ -141,19 +190,21 @@ fun SimpleMediaPlayerUI(
                 onUiEvent = onUiEvent
             )
         }
-
     }
 }
 
 @Composable
-fun MySongItem(name: String, modifier: Modifier, song: Song, vm: SimpleMediaViewModel, index: Int) {
+fun MySongItem(
+    name: String, modifier: Modifier, song: Song, vm: SimpleMediaViewModel, index: Int
+) {
     ConstraintLayout(modifier = Modifier
         .clickable {
-            println("${index}*******************************index*************")
+            Log.i("informacion", "INDICE: $index")
             vm.playSongAtIndex(index)
+            vm.currentIndex = index
         }
         .fillMaxWidth()) {
-        val (divider, songTitle, songSubtitle, image, playIcon) = createRefs()
+        val (divider, image, songTitle, songSubtitle, heartIcon, menuIcon) = createRefs()
 
         Divider(Modifier.constrainAs(divider) {
             top.linkTo(parent.top)
@@ -169,7 +220,7 @@ fun MySongItem(name: String, modifier: Modifier, song: Song, vm: SimpleMediaView
                 .size(56.dp)
                 .clip(androidx.compose.material.MaterialTheme.shapes.medium)
                 .constrainAs(image) {
-                    end.linkTo(parent.end, 16.dp)
+                    start.linkTo(parent.start, 16.dp)
                     top.linkTo(parent.top, 16.dp)
                     bottom.linkTo(parent.bottom, 16.dp)
                 })
@@ -180,14 +231,13 @@ fun MySongItem(name: String, modifier: Modifier, song: Song, vm: SimpleMediaView
             color = Color(0xFFB5B5B5),
             modifier = Modifier.constrainAs(songTitle) {
                 linkTo(
-                    start = parent.start,
-                    end = image.start,
-                    startMargin = 24.dp,
+                    start = image.end,
+                    end = parent.end,
+                    startMargin = 16.dp,
                     endMargin = 16.dp,
                     bias = 0f
                 )
                 top.linkTo(parent.top, 16.dp)
-                start.linkTo(parent.start, 16.dp)
                 width = Dimension.preferredWrapContent
             })
 
@@ -198,19 +248,48 @@ fun MySongItem(name: String, modifier: Modifier, song: Song, vm: SimpleMediaView
                 color = Color(0xFFB5B5B5),
                 modifier = Modifier.constrainAs(songSubtitle) {
                     linkTo(
-                        start = parent.start,
-                        end = image.start,
-                        startMargin = 24.dp,
+                        start = image.end,
+                        end = parent.end,
+                        startMargin = 16.dp,
                         endMargin = 16.dp,
                         bias = 0f
                     )
                     top.linkTo(songTitle.bottom, 6.dp)
-                    start.linkTo(parent.start, 16.dp)
                     width = Dimension.preferredWrapContent
                 })
         }
+
+        IconButton(onClick = { /* Acción al hacer clic en el icono de corazón */ },
+            modifier = Modifier.constrainAs(heartIcon) {
+                start.linkTo(songSubtitle.start, 150.dp)
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                end.linkTo(menuIcon.start)
+                width = Dimension.wrapContent
+            }) {
+            Icon(
+                imageVector = Icons.Filled.Favorite,
+                contentDescription = "Favorite",
+                tint = Color.Red
+            )
+        }
+
+        IconButton(onClick = { /* Acción al hacer clic en el icono de menú */ },
+            modifier = Modifier.constrainAs(menuIcon) {
+                end.linkTo(parent.end, 16.dp)
+                top.linkTo(parent.top)
+                bottom.linkTo(parent.bottom)
+                width = Dimension.wrapContent
+            }) {
+            Icon(
+                imageVector = Icons.Filled.MoreVert, contentDescription = "Menu", tint = Color.Gray
+            )
+        }
     }
 }
+
+
+/*
 
 @Composable
 fun HomeMusicScreen(
@@ -349,3 +428,4 @@ fun MusicListItem(
     }
 }
 
+*/

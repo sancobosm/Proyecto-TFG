@@ -3,9 +3,10 @@ package cobos.santiago.navigation
 
 sealed class AppScreens(val route: String) {
     object SplashScreen : AppScreens("splash_screen")
-    object MainActivity : AppScreens("main_activity")
+    object FirstScreen : AppScreens("main_activity")
     object HomeScreen : AppScreens("home_screen")
-    object Options : AppScreens("options")
+    object MyScaffold : AppScreens("scaffold")
+    object Settings : AppScreens("settings")
     object Profile : AppScreens("profile")
 
 }

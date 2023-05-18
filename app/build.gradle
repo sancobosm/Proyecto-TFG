@@ -129,6 +129,14 @@ dependencies {
     // Coil
     implementation "io.coil-kt:coil: 1.3.0"
     implementation "com.google.accompanist:accompanist-coil:0.13.0"
+
+
+    //Bottom app bar animation
+    dependencies {
+        implementation("com.exyte:animated-navigation-bar:1.0.0")
+    }
+    implementation 'androidx.compose.animation:animation:1.4.3'
+
 }
 kapt {
     correctErrorTypes = true

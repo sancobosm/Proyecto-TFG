@@ -27,9 +27,9 @@ fun SplashScreen(navController: NavHostController) {
         delay(2000)
         navController.popBackStack()
         if (auth.isUserLoggedIn()) {
-            navController.navigate(AppScreens.HomeScreen.route)
+            navController.navigate(AppScreens.MyScaffold.route)
         } else {
-            navController.navigate(AppScreens.MainActivity.route)
+            navController.navigate(AppScreens.FirstScreen.route)
         }
     }
 

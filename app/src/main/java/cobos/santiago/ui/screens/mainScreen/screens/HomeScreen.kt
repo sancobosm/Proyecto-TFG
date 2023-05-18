@@ -87,7 +87,7 @@ internal fun HomeScreen(
                     ReadyContent(
                         vm = vm,
                         modifier = Modifier
-                            .padding(bottom = 59.dp, start = 5.dp, end = 5.dp)
+                            .padding(bottom = 80.dp, start = 5.dp, end = 5.dp)
                             .align(Alignment.BottomCenter)
                         // .weight(1f)
                     )
@@ -96,7 +96,6 @@ internal fun HomeScreen(
             }
         }
     }
-
 }
 
 @Composable

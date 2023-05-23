@@ -1,5 +1,6 @@
 package cobos.santiago
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -26,10 +27,12 @@ fun SplashScreen(navController: NavHostController) {
     LaunchedEffect(key1 = true) {
         delay(2000)
         navController.popBackStack()
+        Log.i("userr", "${auth.isUserLoggedIn()} logeado")
         if (auth.isUserLoggedIn()) {
             navController.navigate(AppScreens.MyScaffold.route)
         } else {
-            navController.navigate(AppScreens.FirstScreen.route)
+            Log.i("userr", "${auth.isUserLoggedIn()} logeado")
+            navController.navigate(AppScreens.LoginScreen.route)
         }
     }
 

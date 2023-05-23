@@ -101,7 +101,7 @@ fun MyHorizontalPager(navController: NavController) {
                     MyLoginView(navController)
                 }
                 1 -> {
-                    MyRegisterView()
+                    MyRegisterView(navController)
                 }
             }
         }

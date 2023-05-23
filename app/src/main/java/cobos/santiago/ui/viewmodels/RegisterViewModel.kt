@@ -10,6 +10,13 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterViewModel @Inject constructor() :
     ViewModel() {
+
+    private val _isRegisterSuccess = MutableLiveData<Boolean>()
+    val isRegisterSuccess: LiveData<Boolean> = _isRegisterSuccess
+    fun onRegisterError(succes: Boolean) {
+        _isRegisterSuccess.value = succes
+    }
+
     //for email text
     private val _email = MutableLiveData<String>()
     val email: LiveData<String> = _email
@@ -36,12 +43,14 @@ class RegisterViewModel @Inject constructor() :
     private val _isButtonEnable = MutableLiveData<Boolean>()
     val isButtonEnabled: LiveData<Boolean> = _isButtonEnable
 
-    fun onRegisterChanged(email: String, password: String, confirm_password: String){
+    fun onRegisterChanged(email: String, password: String, confirm_password: String) {
         _email.value = email
         _password.value = password
-        _isButtonEnable.value = enableButton(email,password,confirm_password)
+        _isButtonEnable.value = enableButton(email, password, confirm_password)
     }
 
     fun enableButton(email: String, password: String, confirm_password: String) =
-        Patterns.EMAIL_ADDRESS.matcher(email).matches() && password.length > 6 && password.equals(confirm_password)
+        Patterns.EMAIL_ADDRESS.matcher(email).matches() && password.length > 6 && password.equals(
+            confirm_password
+        )
 }

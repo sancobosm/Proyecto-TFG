@@ -15,16 +15,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import cobos.santiago.data.remote.Auth
 import cobos.santiago.ui.viewmodels.RegisterViewModel
 
 @Composable
-fun MyRegisterView() {
-    MyBody()
+fun MyRegisterView(navController: NavController) {
+    MyBody(navController)
 }
 
 @Composable
-fun MyBody() {
+fun MyBody(navController: NavController) {
 
     val viewModel = hiltViewModel<RegisterViewModel>()
 
@@ -35,6 +36,8 @@ fun MyBody() {
     val passwordText: String by viewModel.password.observeAsState(initial = "")
     val confirmPasswordText: String by viewModel.confirm_password.observeAsState(initial = "")
     val isButtonEnabled: Boolean by viewModel.isButtonEnabled.observeAsState(initial = false)
+    val isRegisterError: Boolean by viewModel.isRegisterSuccess.observeAsState(initial = false)
+
 
     //for register
     val auth = Auth()
@@ -48,25 +51,25 @@ fun MyBody() {
         MyField(text = emailText, {
             viewModel.onTextChanged(it)
             viewModel.onRegisterChanged(it, passwordText, confirmPasswordText)
-        }, "Email", false)
+        }, "Email", isRegisterError)
         Spacer(Modifier.size(10.dp))
         MyField(text = nameText, {
             nameText = it
-        }, "Name", false)
+        }, "Name", isRegisterError)
         Spacer(Modifier.size(10.dp))
         MyField(text = lastNameText, {
             lastNameText = it
-        }, "Last name", false)
+        }, "Last name", isRegisterError)
         Spacer(Modifier.size(10.dp))
         MyFieldPassword(text = passwordText, {
             viewModel.onPasswordChanged(it)
             viewModel.onRegisterChanged(emailText, it, confirmPasswordText)
-        }, "Password", true)
+        }, "Password", isRegisterError)
         Spacer(Modifier.size(10.dp))
         MyFieldPassword(text = confirmPasswordText, {
             viewModel.onConfirmPasswordChanged(it)
             viewModel.onRegisterChanged(emailText, passwordText, it)
-        }, "Confirm password", true)
+        }, "Confirm password", isRegisterError)
         Spacer(Modifier.size(50.dp))
         Button(
             modifier = Modifier
@@ -74,6 +77,12 @@ fun MyBody() {
             enabled = isButtonEnabled,
             onClick = {
                 auth.createUser(emailText, passwordText)
+                Thread.sleep(1000)
+                auth.makeLogin(emailText, passwordText, navController) {
+                    //caso de error
+                    viewModel.onRegisterError(true)
+                    viewModel.onRegisterChanged("", "", "")
+                }
             }) {
             Text("Confirm Registration")
         }

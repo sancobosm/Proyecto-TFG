@@ -56,8 +56,14 @@ class MainActivity : ComponentActivity() {
     private fun MyNavigationHost(navController: NavHostController) {
         NavHost(
             navController = navController,
-            startDestination = AppScreens.MyScaffold.route
+            startDestination = AppScreens.SplashScreen.route
         ) {
+            composable(AppScreens.SplashScreen.route) {
+                SplashScreen(navController = navController)
+            }
+            composable(AppScreens.LoginScreen.route) {
+                MyFirstScreen(navController = navController)
+            }
             composable(AppScreens.MyScaffold.route) {
                 MyScaffold(navController) {
                     HomeScreen(
@@ -76,12 +82,12 @@ class MainActivity : ComponentActivity() {
             }
             composable(AppScreens.Profile.route) {
                 MyScaffold(navController) {
-                    MyProfile()
+                    MyProfile(navController)
                 }
             }
             composable(AppScreens.Settings.route) {
                 MyScaffold(navController) {
-                    MySettings()
+                    MySettings(navController = navController)
                 }
             }
         }
@@ -92,6 +98,7 @@ class MainActivity : ComponentActivity() {
         Home(Icons.Default.Home),
         Settings(Icons.Default.Settings)
     }
+
 
     @OptIn(ExperimentalMaterial3Api::class)
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -105,7 +112,9 @@ class MainActivity : ComponentActivity() {
         Scaffold(
             modifier = Modifier.padding(all = 0.dp),
             bottomBar = {
-                NavigationBar(Modifier.height(77.dp)) {
+                NavigationBar(
+                    Modifier.height(77.dp)
+                ) {
                     navigationBarItems.forEachIndexed { index, item ->
                         NavigationBarItem(
                             selected = selectedIndex == index,

@@ -11,10 +11,12 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import cobos.santiago.data.remote.Auth
 import cobos.santiago.navigation.AppScreens
 import cobos.santiago.ui.theme.md_theme_dark_onPrimary
+import cobos.santiago.ui.viewmodels.UserViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
@@ -23,7 +25,8 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
-    val auth = Auth()
+    val userViewModel = hiltViewModel<UserViewModel>()
+    val auth = Auth(userViewModel)
     LaunchedEffect(key1 = true) {
         delay(2000)
         navController.popBackStack()

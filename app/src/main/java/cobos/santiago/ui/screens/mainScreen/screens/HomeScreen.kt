@@ -3,6 +3,7 @@ package cobos.santiago.ui.screens.mainScreen
 import android.R
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -19,6 +20,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,58 +42,88 @@ import cobos.santiago.ui.viewmodels.BottomBarViewModel
 import cobos.santiago.ui.viewmodels.SimpleMediaViewModel
 import cobos.santiago.ui.viewmodels.UIEvent
 import cobos.santiago.ui.viewmodels.UIState
+import com.airbnb.lottie.compose.*
 import com.google.accompanist.coil.rememberCoilPainter
 
+@Composable
+fun HomeScreen(vm: SimpleMediaViewModel, startService: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .size(200.dp)
+            .clip(RoundedCornerShape(30.dp)),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        MyMusicAnimation()
+    }
+    MyHomeScreenBody(vm, startService)
+}
 
 @Composable
-internal fun HomeScreen(
-    vm: SimpleMediaViewModel,
-    startService: () -> Unit
+fun MyMusicAnimation() {
+    val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(cobos.santiago.R.raw.music))
+    val progress by animateLottieCompositionAsState(
+        composition = composition, iterations = LottieConstants.IterateForever
+    )
+    LottieAnimation(composition = composition, progress = { progress })
+}
+
+@Composable
+internal fun MyHomeScreenBody(
+    vm: SimpleMediaViewModel, startService: () -> Unit
 ) {
     val state = vm.uiState.collectAsStateWithLifecycle()
     val navigationViewModel = hiltViewModel<BottomBarViewModel>()
-
-    BoxWithConstraints(
-        modifier = Modifier.fillMaxSize()
-        //      .background(MaterialTheme.colorScheme.background)
+    Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 190.dp, start = 10.dp, end = 10.dp, bottom = 50.dp)
+            .clip(RoundedCornerShape(30.dp))
     ) {
-        when (state.value) {
-            UIState.Initial -> CircularProgressIndicator(
-                modifier = Modifier
-                    .size(30.dp)
-                    .align(Alignment.Center)
-            )
-            is UIState.Ready -> {
-                LaunchedEffect(true) { // This is only call first time
-                    startService()
-                }
-
-                Box(Modifier.fillMaxSize()) {
-                    LazyColumn(
-                        modifier = Modifier.padding(0.dp)
-                        /*.weight(6f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)*/
-                    ) {
-                        items(items = vm.songs, key = {
-                            it.id
-                        }) { song ->
-                            MySongItem(
-                                song.name, Modifier.height(70.dp), song, vm, song.id.toInt()
-                            )
-                        }
-                        // Agregar un espacio adicional al final
-                        item {
-                            Spacer(modifier = Modifier.height(110.dp))
-                        }
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize()
+            //      .background(MaterialTheme.colorScheme.background)
+        ) {
+            when (state.value) {
+                UIState.Initial -> CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(30.dp)
+                        .align(Alignment.Center)
+                )
+                is UIState.Ready -> {
+                    LaunchedEffect(true) { // This is only call first time
+                        startService()
                     }
-                    ReadyContent(
-                        vm = vm,
-                        modifier = Modifier
-                            .padding(bottom = 80.dp, start = 5.dp, end = 5.dp)
-                            .align(Alignment.BottomCenter)
-                        // .weight(1f)
-                    )
 
+                    Box(Modifier.fillMaxSize()) {
+                        LazyColumn(
+                            modifier = Modifier
+                                .padding(0.dp)
+                                .background(color = MaterialTheme.colorScheme.onSecondary)
+
+                            /*.weight(6f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)*/
+                        ) {
+                            items(items = vm.songs, key = {
+                                it.id
+                            }) { song ->
+                                MySongItem(
+                                    song.name, Modifier.height(70.dp), song, vm, song.id.toInt()
+                                )
+                            }
+                            // Agregar un espacio adicional al final
+                            item {
+                                Spacer(modifier = Modifier.height(110.dp))
+                            }
+                        }
+                        ReadyContent(
+                            vm = vm,
+                            modifier = Modifier
+                                .padding(bottom = 40.dp, start = 5.dp, end = 5.dp)
+                                .align(Alignment.BottomCenter)
+                        )
+
+                    }
                 }
             }
         }
@@ -133,62 +165,58 @@ fun SimpleMediaPlayerUI(
         if (isDarkTheme) SpotifyTextStyleDarkArtist else SpotifyTextStyleLigtArtist
     Card(
         modifier = modifier
-            .clip(shape = RoundedCornerShape(10.dp))
+            .padding(top = 0.dp, bottom = 0.dp, end = 0.dp, start = 0.dp)
+            .clip(shape = RoundedCornerShape(12.dp))
             .height(60.dp)
+            .background(color = MaterialTheme.colorScheme.onSurfaceVariant)
     ) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(start = 5.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 5.dp, top = 5.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween // Alineación a la derecha
+
         ) {
-            Spacer(modifier = Modifier.size(2.dp))
-            Row(
+
+            Image(
+                painter = rememberCoilPainter(request = vm.songs[vm.currentIndex].imageUrl),
+                contentDescription = "Current song image",
+                Modifier
+                    .size(45.dp)
+                    .clip(androidx.compose.material.MaterialTheme.shapes.medium),
+                contentScale = ContentScale.Crop,
+            )
+            Text(
+                text = vm.songs[vm.currentIndex].name + "  -  " + vm.songs[vm.currentIndex].name,
+                //     style = textStyleName,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 5.dp, top = 5.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween // Alineación a la derecha
+                    .weight(1f)
+                    .padding(start = 10.dp)
+            )
+            /*Text(
+                text = vm.songs[vm.currentIndex].name,
+                style = textStyleArtist,
+                modifier = Modifier.padding(bottom = 0.dp, start = 0.dp, end = 0.dp)
+            )*/
 
-            ) {
-
-                Image(
-                    painter = rememberCoilPainter(request = vm.songs[vm.currentIndex].imageUrl),
-                    contentDescription = "Current song image",
-                    Modifier
-                        .size(45.dp)
-                        .clip(androidx.compose.material.MaterialTheme.shapes.medium),
-                    contentScale = ContentScale.Crop,
-                )
-                Text(
-                    text = vm.songs[vm.currentIndex].name + "  ■  " + vm.songs[vm.currentIndex].name,
-                    style = textStyleName,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 10.dp)
-                )
-                /*Text(
-                    text = vm.songs[vm.currentIndex].name,
-                    style = textStyleArtist,
-                    modifier = Modifier.padding(bottom = 0.dp, start = 0.dp, end = 0.dp)
-                )*/
-
-                Image(
-                    painter = painterResource(id = playResourceProvider()),
-                    contentDescription = "Play/Pause Button",
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .clickable(onClick = { onUiEvent(UIEvent.PlayPause) })
-                        .padding(0.dp)
-                        .size(46.dp)
-                )
-            }
-            PlayerBar(
-                progress = progress,
-                durationString = durationString,
-                progressString = progressString,
-                onUiEvent = onUiEvent
+            Image(
+                painter = painterResource(id = playResourceProvider()),
+                contentDescription = "Play/Pause Button",
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable(onClick = { onUiEvent(UIEvent.PlayPause) })
+                    .padding(0.dp)
+                    .size(46.dp)
             )
         }
+        PlayerBar(
+            progress = progress,
+            durationString = durationString,
+            progressString = progressString,
+            onUiEvent = onUiEvent
+        )
+        //    }
     }
 }
 
@@ -205,19 +233,23 @@ fun MySongItem(
         .fillMaxWidth()) {
         val (divider, image, songTitle, songSubtitle, heartIcon, menuIcon) = createRefs()
 
-        Divider(Modifier.constrainAs(divider) {
-            top.linkTo(parent.top)
-            centerHorizontallyTo(parent)
+        Divider(
+            Modifier
+                .size(1.dp)
+                .constrainAs(divider) {
+                    top.linkTo(parent.bottom)
+                    centerHorizontallyTo(parent)
 
-            width = Dimension.fillToConstraints
-        })
+                    width = Dimension.fillToConstraints
+                }, color = MaterialTheme.colorScheme.background
+        )
 
         Image(painter = rememberCoilPainter(song.imageUrl, fadeIn = true),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(56.dp)
-                .clip(androidx.compose.material.MaterialTheme.shapes.medium)
+                .clip(MaterialTheme.shapes.medium)
                 .constrainAs(image) {
                     start.linkTo(parent.start, 16.dp)
                     top.linkTo(parent.top, 16.dp)
@@ -227,7 +259,7 @@ fun MySongItem(
         Text(text = song.name,
             maxLines = 2,
             style = androidx.compose.material.MaterialTheme.typography.subtitle1,
-            color = Color(0xFFB5B5B5),
+            //     color = Color(0xFFB5B5B5),
             modifier = Modifier.constrainAs(songTitle) {
                 linkTo(
                     start = image.end,
@@ -241,10 +273,8 @@ fun MySongItem(
             })
 
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-            Text(text = song.name,
-                maxLines = 2,
-                style = androidx.compose.material.MaterialTheme.typography.subtitle2,
-                color = Color(0xFFB5B5B5),
+            Text(text = song.name, maxLines = 2, style = MaterialTheme.typography.titleSmall,
+                //  color = Color(0xFFB5B5B5),
                 modifier = Modifier.constrainAs(songSubtitle) {
                     linkTo(
                         start = image.end,

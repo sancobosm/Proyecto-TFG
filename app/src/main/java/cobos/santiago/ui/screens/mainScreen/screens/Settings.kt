@@ -3,8 +3,13 @@ package cobos.santiago.ui.screens.mainScreen.screens
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,46 +19,266 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import cobos.santiago.R
+import cobos.santiago.data.entities.User
+import cobos.santiago.ui.viewmodels.UserViewModel
 import coil.compose.rememberImagePainter
+import com.airbnb.lottie.compose.*
+
+
+@Composable
+fun MySettings() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .clip(RoundedCornerShape(30.dp))
+    ) {
+        MySettingsAnimation()
+    }
+    MySettingsBody()
+}
+
+@Composable
+fun MySettingsAnimation() {
+    val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.settings))
+    val progress by animateLottieCompositionAsState(
+        composition = composition, iterations = LottieConstants.IterateForever
+    )
+    LottieAnimation(composition = composition, progress = { progress })
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MySettings(navController: NavController) {
-    Surface(Modifier.fillMaxSize()) {
-        Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+fun MySettingsBody() {
+    val userViewModel = hiltViewModel<UserViewModel>()
+    val user: User = userViewModel.getCurrentUser().value!!
+
+
+    val emailEditMode = remember { mutableStateOf(false) }
+    val firstNameEditMode = remember { mutableStateOf(false) }
+    val secondNameEditMode = remember { mutableStateOf(false) }
+    val passwordEditMode = remember { mutableStateOf(false) }
+
+    val emailValue = remember { mutableStateOf(user.email) }
+    val firstNameValue = remember { mutableStateOf(user.firstName) }
+    val secondNameValue = remember { mutableStateOf(user.secondName) }
+
+    val showDialog = remember { mutableStateOf(false) }
+    Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 180.dp, start = 10.dp, end = 10.dp, bottom = 50.dp)
+            .clip(RoundedCornerShape(30.dp))
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             ProfilePicture()
 
-            OutlinedTextField(
-                value = "Nombre de usuario",
-                onValueChange = { /* Cambiar el nombre de usuario */ },
-                modifier = Modifier.padding(top = 16.dp)
-            )
+            Spacer(modifier = Modifier.height(4.dp))
+            /* val textFieldColors = TextFieldDefaults.textFieldColors(
+                 focusedIndicatorColor = MaterialTheme.colorScheme.surfaceTint, // Color de la línea cuando el TextField está enfocado
+                 unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceTint, // Color de la línea cuando el TextField no está enfocado
+                 errorIndicatorColor = MaterialTheme.colorScheme.surfaceTint // Color de la línea cuando el TextField está en estado de error
+             )*/
             TextField(
-                value = "Correo electrónico",
-                onValueChange = { /* Cambiar el correo electrónico */ },
-                modifier = Modifier.padding(top = 16.dp)
-            )
-            TextField(
-                value = "Contraseña",
-                onValueChange = { /* Cambiar la contraseña */ },
-                modifier = Modifier.padding(top = 16.dp)
+                value = emailValue.value,
+                onValueChange = { emailValue.value = it },
+                readOnly = !emailEditMode.value,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                label = {
+                    Text(
+                        text = "Email:"
+                    )
+                },
+                leadingIcon = {
+                    IconButton(
+                        onClick = { emailEditMode.value = !emailEditMode.value },
+                        enabled = !emailEditMode.value
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit, contentDescription = null
+                        )
+                    }
+                },
+                trailingIcon = {
+                    if (emailEditMode.value) {
+                        IconButton(
+                            onClick = { emailEditMode.value = !emailEditMode.value },
+                            //    enabled = !emailEditMode.value
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check, contentDescription = null
+                            )
+                        }
+                    }
+                },
+                shape = TextFieldDefaults.filledShape,
             )
 
-            var showDialog by remember { mutableStateOf(false) }
+            Spacer(modifier = Modifier.height(7.dp))
 
-            Button(
-                onClick = { showDialog = !showDialog }, modifier = Modifier.padding(top = 16.dp)
+            TextField(
+                value = firstNameValue.value,
+                onValueChange = { firstNameValue.value = it },
+                readOnly = !firstNameEditMode.value,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                label = {
+                    Text(
+                        text = "First name:"
+                    )
+                },
+                leadingIcon = {
+                    IconButton(
+                        onClick = { firstNameEditMode.value = !firstNameEditMode.value },
+                        enabled = !firstNameEditMode.value
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit, contentDescription = null
+                        )
+                    }
+                },
+                trailingIcon = {
+                    if (firstNameEditMode.value) {
+                        IconButton(
+                            onClick = { firstNameEditMode.value = !firstNameEditMode.value },
+                            //    enabled = !firstNameEditMode.value
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check, contentDescription = null
+                            )
+                        }
+                    }
+                },
+                shape = TextFieldDefaults.filledShape,
+            )
+
+            Spacer(modifier = Modifier.height(7.dp))
+
+            TextField(
+                value = secondNameValue.value,
+                onValueChange = { secondNameValue.value = it },
+                readOnly = !secondNameEditMode.value,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                label = {
+                    Text(
+                        text = "Second name:"
+                    )
+                },
+                leadingIcon = {
+                    IconButton(
+                        onClick = { secondNameEditMode.value = !secondNameEditMode.value },
+                        enabled = !secondNameEditMode.value
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit, contentDescription = null
+                        )
+                    }
+                },
+                trailingIcon = {
+                    if (secondNameEditMode.value) {
+                        IconButton(
+                            onClick = { secondNameEditMode.value = !secondNameEditMode.value },
+                            //    enabled = !secondNameEditMode.value
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check, contentDescription = null
+                            )
+                        }
+                    }
+                },
+                shape = TextFieldDefaults.filledShape,
+            )
+            Spacer(modifier = Modifier.height(7.dp))
+
+            TextField(
+                value = "***************",
+                onValueChange = {},
+                readOnly = !passwordEditMode.value,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                label = {
+                    Text(
+                        text = "Password:"
+                    )
+                },
+                leadingIcon = {
+                    IconButton(
+                        onClick = { passwordEditMode.value = !passwordEditMode.value },
+                        enabled = !passwordEditMode.value
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit, contentDescription = null
+                        )
+                    }
+                },
+                trailingIcon = {
+                    if (passwordEditMode.value) {
+                        IconButton(
+                            onClick = { passwordEditMode.value = !passwordEditMode.value },
+                            //    enabled = !passwordEditMode.value
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Check, contentDescription = null
+                            )
+                        }
+                    }
+                },
+                shape = TextFieldDefaults.filledShape,
+            )
+            Spacer(Modifier.size(7.dp))
+            OutlinedButton(
+                modifier = Modifier
+                    .height(40.dp)
+                    .width(160.dp),
+                onClick = {
+                    showDialog.value = true
+                }
             ) {
-                Text(text = "Mostrar ventana de confirmación")
+                Text(text = "Confirm edition")
             }
 
-            if (showDialog) {
-                FloatingConfirmWindow(confirmText = "Confirmar",
-                    cancelText = "Cancelar",
-                    onConfirm = { /* Lógica al confirmar */ },
-                    onCancel = { /* Lógica al cancelar */ })
+            if (showDialog.value) {
+                AlertDialog(
+                    onDismissRequest = { showDialog.value = false },
+                    title = { Text("Confirm Edition") },
+                    text = { Text("Are you sure you want to save the changes?") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                // Realizar acciones de confirmación
+                                showDialog.value = false
+                            }
+                        ) {
+                            Text("Confirm")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showDialog.value = false
+                            }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                )
             }
         }
     }
@@ -76,8 +301,9 @@ fun ProfilePicture() {
 
         Box(
             modifier = Modifier
-                .size(120.dp)
+                .size(130.dp)
                 .clip(CircleShape)
+                .border(1.dp, MaterialTheme.colorScheme.surfaceTint, CircleShape)
         ) {
             Image(
                 painter = painter,
@@ -94,31 +320,5 @@ fun ProfilePicture() {
     }
 }
 
-@Composable
-fun FloatingConfirmWindow(
-    confirmText: String, cancelText: String, onConfirm: () -> Unit, onCancel: () -> Unit
-) {
-    val dialogShown = remember { mutableStateOf(true) }
 
-    if (dialogShown.value) {
-        AlertDialog(onDismissRequest = { dialogShown.value = false }, title = {
-            Text(text = "Confirmación")
-        }, text = {
-            Text(text = "¿Estás seguro de realizar esta acción?")
-        }, confirmButton = {
-            Button(onClick = {
-                dialogShown.value = false
-                onConfirm()
-            }) {
-                Text(text = confirmText)
-            }
-        }, dismissButton = {
-            Button(onClick = {
-                dialogShown.value = false
-                onCancel()
-            }) {
-                Text(text = cancelText)
-            }
-        })
-    }
-}
+

@@ -21,11 +21,14 @@ import cobos.santiago.MyForgotPassword
 import cobos.santiago.R
 import cobos.santiago.data.remote.Auth
 import cobos.santiago.ui.viewmodels.LoginViewModel
+import cobos.santiago.ui.viewmodels.UserViewModel
 
 @Composable
 fun MyLoginView(navController: NavController) {
     //viewmodel
     val viewModel = hiltViewModel<LoginViewModel>()
+    val userViewModel = hiltViewModel<UserViewModel>()
+
 
     //live data logic
     val loginText: String by viewModel.email.observeAsState(initial = "")
@@ -34,7 +37,7 @@ fun MyLoginView(navController: NavController) {
 
     val isLoginError: Boolean by viewModel.isLoginSuccess.observeAsState(initial = false)
 
-    val auth = Auth()
+    val auth = Auth(userViewModel)
     //column for main content of the login
     Column(
         modifier = Modifier
@@ -43,7 +46,8 @@ fun MyLoginView(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.size(20.dp))
-        MyField(text = loginText,
+        MyField(
+            text = loginText,
             {
                 viewModel.onTextChanged(it)
                 viewModel.onLoginChanged(it, passwordText)

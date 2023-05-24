@@ -82,12 +82,12 @@ class MainActivity : ComponentActivity() {
             }
             composable(AppScreens.Profile.route) {
                 MyScaffold(navController) {
-                    MyProfile(navController)
+                    MyProfile()
                 }
             }
             composable(AppScreens.Settings.route) {
                 MyScaffold(navController) {
-                    MySettings(navController = navController)
+                    MySettings()
                 }
             }
         }

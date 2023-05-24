@@ -18,6 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import cobos.santiago.data.remote.Auth
 import cobos.santiago.ui.viewmodels.RegisterViewModel
+import cobos.santiago.ui.viewmodels.UserViewModel
 
 @Composable
 fun MyRegisterView(navController: NavController) {
@@ -28,6 +29,8 @@ fun MyRegisterView(navController: NavController) {
 fun MyBody(navController: NavController) {
 
     val viewModel = hiltViewModel<RegisterViewModel>()
+    val userViewModel = hiltViewModel<UserViewModel>()
+
 
     var nameText by remember { mutableStateOf(("")) }
     var lastNameText by remember { mutableStateOf(("")) }
@@ -40,7 +43,7 @@ fun MyBody(navController: NavController) {
 
 
     //for register
-    val auth = Auth()
+    val auth = Auth(userViewModel)
 
     Column(
         Modifier

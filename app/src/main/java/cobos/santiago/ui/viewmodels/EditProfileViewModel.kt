@@ -8,7 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor() : ViewModel() {
+class EditProfileViewModel @Inject constructor() : ViewModel() {
 
     private val _isUpdateSuccess = MutableLiveData<Boolean>()
     val isUpdateSuccess: LiveData<Boolean> = _isUpdateSuccess

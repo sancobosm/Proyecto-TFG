@@ -1,85 +1,202 @@
 package cobos.santiago.ui.screens.mainScreen.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import cobos.santiago.navigation.AppScreens
-import cobos.santiago.ui.viewmodels.ProfileViewModel
+import cobos.santiago.R
+import cobos.santiago.data.entities.User
+import cobos.santiago.ui.viewmodels.UserViewModel
+import com.airbnb.lottie.compose.*
 
+@Composable
+fun MyProfile() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp)
+            .clip(RoundedCornerShape(30.dp))
+    ) {
+        MyProfileAnimation()
+    }
+    MyBodyProfile()
+}
+
+@Composable
+fun MyProfileAnimation() {
+    val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(R.raw.profile))
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = LottieConstants.IterateForever
+    )
+    LottieAnimation(
+        composition = composition,
+        progress = { progress }
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyProfile(navController: NavController) {
-    val viewModel: ProfileViewModel = hiltViewModel()
+fun MyBodyProfile() {
+    val userViewModel = hiltViewModel<UserViewModel>()
+    val user: User = userViewModel.getCurrentUser().value!!
 
-    val newName: String by viewModel.newName.observeAsState(initial = "")
-    val newPassword: String by viewModel.newPassword.observeAsState(initial = "")
-    val confirmPassword: String by viewModel.confirmPassword.observeAsState(initial = "")
-    val errorMessage: String by viewModel.errorMessage.observeAsState(initial = "")
-    val isUpdateSuccess: Boolean by viewModel.isUpdateSuccess.observeAsState(initial = false)
+    val showDialog = remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Card(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 190.dp, start = 10.dp, end = 10.dp, bottom = 50.dp)
+            .clip(RoundedCornerShape(30.dp))
     ) {
-        OutlinedTextField(
-            value = newName,
-            onValueChange = { viewModel.setName(it) },
-            label = { Text(text = "name") },
-            modifier = Modifier.padding(16.dp)
-        )
-        OutlinedTextField(
-            value = newPassword,
-            onValueChange = { viewModel.setPassword(it) },
-            label = { Text(text = "new password") },
-            modifier = Modifier.padding(16.dp)
-        )
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { viewModel.setConfirmPassword(it) },
-            label = { Text(text = "confirm password") },
-            modifier = Modifier.padding(16.dp)
-        )
-        if (errorMessage.isNotEmpty()) {
-            Text(
-                text = errorMessage,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-        if (isUpdateSuccess) {
-            Text(
-                text = "Profile updated",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-        Button(
-            onClick = {
-                viewModel.updateProfile()
-            },
-            modifier = Modifier.padding(16.dp)
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "save")
-        }
-        Button(
-            onClick = {
-                viewModel.logout()
-                navController.navigate(AppScreens.LoginScreen.route)
-                // Aquí puedes agregar cualquier otra lógica necesaria al cerrar sesión, como redireccionar al usuario a la pantalla de inicio de sesión.
-            },
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(text = "Log out")
+            Image(
+                painter = painterResource(id = user.image),
+                contentDescription = "Profile Picture",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(130.dp)
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+            val textFieldColors = TextFieldDefaults.textFieldColors(
+                focusedIndicatorColor = MaterialTheme.colorScheme.surfaceTint, // Color de la línea cuando el TextField está enfocado
+                unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceTint, // Color de la línea cuando el TextField no está enfocado
+                errorIndicatorColor = MaterialTheme.colorScheme.surfaceTint // Color de la línea cuando el TextField está en estado de error
+            )
+            TextField(
+                value = user.email,
+                onValueChange = {},
+                enabled = true,
+                readOnly = true,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                label = {
+                    Text(
+                        text = "Email:",
+                        color = MaterialTheme.colorScheme.surfaceTint
+                    )
+                },
+                shape = TextFieldDefaults.filledShape,
+                colors = textFieldColors
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextField(
+                value = user.firstName,
+                onValueChange = {},
+                enabled = true,
+                readOnly = true,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                label = {
+                    Text(
+                        text = "First Name",
+                        color = MaterialTheme.colorScheme.surfaceTint
+                    )
+                },
+                shape = TextFieldDefaults.filledShape,
+                colors = textFieldColors
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextField(
+                value = user.secondName,
+                onValueChange = {},
+                enabled = true,
+                readOnly = true,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                label = {
+                    Text(
+                        text = "Second Name",
+                        color = MaterialTheme.colorScheme.surfaceTint
+                    )
+                },
+                shape = TextFieldDefaults.filledShape,
+                colors = textFieldColors
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextField(
+                value = "***************",
+                onValueChange = {},
+                enabled = true,
+                readOnly = true,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                label = {
+                    Text(
+                        text = "Password:",
+                        color = MaterialTheme.colorScheme.surfaceTint
+                    )
+                },
+                shape = TextFieldDefaults.filledShape,
+                colors = textFieldColors
+            )
+            Spacer(Modifier.size(16.dp))
+            OutlinedButton(
+                modifier = Modifier
+                    .height(40.dp)
+                    .width(120.dp),
+                onClick = {
+                    showDialog.value = true
+                }
+            ) {
+                Text(text = "Logout")
+            }
+
+            if (showDialog.value) {
+                AlertDialog(
+                    onDismissRequest = { showDialog.value = false },
+                    title = { Text("Logout") },
+                    text = { Text("Are you sure you want to logout?") },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                // Realizar acciones de confirmación
+                                showDialog.value = false
+                            }
+                        ) {
+                            Text("Confirm")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showDialog.value = false
+                            }
+                        ) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
         }
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import cobos.santiago.R
 import cobos.santiago.data.entities.User
+import cobos.santiago.data.remote.Auth
 import cobos.santiago.ui.viewmodels.UserViewModel
 import coil.compose.rememberImagePainter
 import com.airbnb.lottie.compose.*
@@ -54,6 +55,7 @@ fun MySettingsAnimation() {
 fun MySettingsBody() {
     val userViewModel = hiltViewModel<UserViewModel>()
     val user: User = userViewModel.getCurrentUser().value!!
+    val auth = Auth(userViewModel)
 
 
     val emailEditMode = remember { mutableStateOf(false) }
@@ -66,6 +68,7 @@ fun MySettingsBody() {
     val secondNameValue = remember { mutableStateOf(user.secondName) }
 
     val showDialog = remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -262,8 +265,9 @@ fun MySettingsBody() {
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                // Realizar acciones de confirmación
                                 showDialog.value = false
+
+
                             }
                         ) {
                             Text("Confirm")
@@ -286,14 +290,17 @@ fun MySettingsBody() {
 
 @Composable
 fun ProfilePicture() {
-    var selectedImageUri by remember { mutableStateOf("") }
+    val userViewModel = hiltViewModel<UserViewModel>()
+    // var selectedImageUri by remember { mutableStateOf("") }
+    var selectedImageUri = userViewModel.selectedImageUri.value
     val imageLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
             // Lógica para establecer la imagen seleccionada como la imagen de perfil
             selectedImageUri = uri.toString()
+            userViewModel.saveProfileImage(uri.toString())
         }
     Box(modifier = Modifier.padding(0.dp)) {
-        val painter: Painter = if (selectedImageUri.isNotEmpty()) {
+        val painter: Painter = if (selectedImageUri.equals("")) {
             rememberImagePainter(selectedImageUri)
         } else {
             painterResource(id = R.drawable.profile_image)

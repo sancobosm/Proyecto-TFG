@@ -1,5 +1,6 @@
 package com.cursokotlin.music_service.service.notification
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -11,7 +12,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 import androidx.media3.ui.PlayerNotificationManager
-import com.cursokotlin.music_service.R
+import androidx.media3.ui.R
 
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -21,8 +22,7 @@ private const val NOTIFICATION_CHANNEL_NAME = "notification channel 1"
 private const val NOTIFICATION_CHANNEL_ID = "notification channel id 1"
 
 class SimpleMediaNotificationManager @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val player: ExoPlayer
+    @ApplicationContext private val context: Context, private val player: ExoPlayer
 ) {
 
     private var notificationManager: NotificationManagerCompat =
@@ -34,46 +34,42 @@ class SimpleMediaNotificationManager @Inject constructor(
 
     @UnstableApi
     fun startNotificationService(
-        mediaSessionService: MediaSessionService,
-        mediaSession: MediaSession
+        mediaSessionService: MediaSessionService, mediaSession: MediaSession
     ) {
         buildNotification(mediaSession)
         startForegroundNotification(mediaSessionService)
     }
 
+    @SuppressLint("PrivateResource")
     @UnstableApi
     private fun buildNotification(mediaSession: MediaSession) {
         PlayerNotificationManager.Builder(context, NOTIFICATION_ID, NOTIFICATION_CHANNEL_ID)
             .setMediaDescriptionAdapter(
                 SimpleMediaNotificationAdapter(
-                    context = context,
-                    pendingIntent = mediaSession.sessionActivity
+                    context = context, pendingIntent = mediaSession.sessionActivity
                 )
-            )
-            .setSmallIconResourceId(R.drawable.ic_microphone)
-            .build()
-            .also {
+            ).setSmallIconResourceId(R.drawable.exo_notification_small_icon)
+            .setNextActionIconResourceId(R.drawable.exo_notification_next)
+            .build().also {
+                it.setPlayer(player)
+                it.setPriority(NotificationCompat.PRIORITY_MAX)
+                it.setUseRewindAction(true)
                 it.setMediaSessionToken(mediaSession.sessionCompatToken)
                 it.setUseFastForwardActionInCompactView(true)
                 it.setUseRewindActionInCompactView(true)
-                it.setUseNextActionInCompactView(false)
-                it.setPriority(NotificationCompat.PRIORITY_LOW)
-                it.setPlayer(player)
+                it.setUseNextActionInCompactView(true)
             }
     }
 
     private fun startForegroundNotification(mediaSessionService: MediaSessionService) {
         val notification = Notification.Builder(context, NOTIFICATION_CHANNEL_ID)
-            .setCategory(Notification.CATEGORY_SERVICE)
-            .build()
+            .setCategory(Notification.CATEGORY_SERVICE).build()
         mediaSessionService.startForeground(NOTIFICATION_ID, notification)
     }
 
     private fun createNotificationChannel() {
         val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID,
-            NOTIFICATION_CHANNEL_NAME,
-            NotificationManager.IMPORTANCE_LOW
+            NOTIFICATION_CHANNEL_ID, NOTIFICATION_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW
         )
         notificationManager.createNotificationChannel(channel)
     }

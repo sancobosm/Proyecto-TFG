@@ -1,5 +1,6 @@
 package cobos.santiago.ui.screens.mainScreen.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,13 +16,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import cobos.santiago.R
 import cobos.santiago.data.entities.User
+import cobos.santiago.data.remote.Auth
+import cobos.santiago.navigation.AppScreens
 import cobos.santiago.ui.viewmodels.UserViewModel
 import com.airbnb.lottie.compose.*
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun MyProfile() {
+fun MyProfile(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -30,7 +35,7 @@ fun MyProfile() {
     ) {
         MyProfileAnimation()
     }
-    MyBodyProfile()
+    MyBodyProfile(navController = navController)
 }
 
 @Composable
@@ -48,9 +53,11 @@ fun MyProfileAnimation() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyBodyProfile() {
+fun MyBodyProfile(navController: NavController) {
     val userViewModel = hiltViewModel<UserViewModel>()
     val user: User = userViewModel.getCurrentUser().value!!
+    val auth = Auth(userViewModel)
+
 
     val showDialog = remember { mutableStateOf(false) }
 
@@ -181,6 +188,11 @@ fun MyBodyProfile() {
                             onClick = {
                                 // Realizar acciones de confirmación
                                 showDialog.value = false
+                                Log.i("userr", "${auth.isUserLoggedIn()} antes")
+                                FirebaseAuth.getInstance().signOut()
+                                Log.i("userr", "${auth.isUserLoggedIn()} despues")
+                                navController.navigate(AppScreens.LoginScreen.route)
+
                             }
                         ) {
                             Text("Confirm")

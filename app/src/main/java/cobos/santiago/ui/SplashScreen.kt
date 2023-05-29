@@ -2,12 +2,10 @@ package cobos.santiago
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,15 +36,17 @@ fun SplashScreen(navController: NavHostController) {
             navController.navigate(AppScreens.LoginScreen.route)
         }
     }
-
     val systemUiController = rememberSystemUiController()
+    systemUiController.isNavigationBarVisible = false
+
+    /*val systemUiController = rememberSystemUiController()
     val useDarkIcons = !isSystemInDarkTheme()
     SideEffect {
         systemUiController.setSystemBarsColor(
             color = Color(0f, 0f, 0f, 0.8f),
             darkIcons = useDarkIcons
         )
-    }
+    }*/
     Splash(
         modifier = Modifier
             .fillMaxSize()

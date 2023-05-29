@@ -23,12 +23,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import cobos.santiago.navigation.AppScreens
-import cobos.santiago.ui.screens.mainScreen.HomeScreen
-import cobos.santiago.ui.screens.mainScreen.screens.MyProfile
-import cobos.santiago.ui.screens.mainScreen.screens.MySettings
+import cobos.santiago.ui.screens.mainScreen.screens.*
 import cobos.santiago.ui.theme.MusikTheme
 import cobos.santiago.ui.viewmodels.SimpleMediaViewModel
 import com.cursokotlin.music_service.service.SimpleMediaService
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -36,11 +35,16 @@ class MainActivity : ComponentActivity() {
     private val viewModel: SimpleMediaViewModel by viewModels()
     private var isServiceRunning = false
     private var selectedIndex by mutableStateOf(1) // Variable de estado global
+    private var hideSystemBars by mutableStateOf(true)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        hideSystemBars = savedInstanceState?.getBoolean("hideSystemBars", true) ?: true
+
         setContent {
             MusikTheme {
+                SetUi()
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -52,6 +56,15 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+
+    @Composable
+    private fun SetUi() {
+        val systemUiController = rememberSystemUiController()
+        systemUiController.isNavigationBarVisible = false
+        
+    }
+
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @Composable
     private fun MyNavigationHost(navController: NavHostController) {
         NavHost(
@@ -68,7 +81,8 @@ class MainActivity : ComponentActivity() {
                 MyScaffold(navController) {
                     HomeScreen(
                         vm = viewModel,
-                        startService = ::startService
+                        startService = ::startService,
+                        navController = navController
                     )
                 }
             }
@@ -76,19 +90,25 @@ class MainActivity : ComponentActivity() {
                 MyScaffold(navController) {
                     HomeScreen(
                         vm = viewModel,
-                        startService = ::startService
+                        startService = ::startService,
+                        navController = navController
                     )
                 }
             }
             composable(AppScreens.Profile.route) {
                 MyScaffold(navController) {
-                    MyProfile()
+                    MyProfile(navController)
                 }
             }
             composable(AppScreens.Settings.route) {
                 MyScaffold(navController) {
                     MySettings()
                 }
+            }
+            composable(AppScreens.SecondaryScreen.route) {
+                // MyScaffold(navController) {
+                SecondaryScreen(viewModel, navController = navController)
+                //  }
             }
         }
     }

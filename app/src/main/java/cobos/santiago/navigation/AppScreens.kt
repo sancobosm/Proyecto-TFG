@@ -8,5 +8,7 @@ sealed class AppScreens(val route: String) {
     object MyScaffold : AppScreens("scaffold")
     object Settings : AppScreens("settings")
     object Profile : AppScreens("profile")
+    object SecondaryScreen : AppScreens("secondaryScreen")
+
 
 }

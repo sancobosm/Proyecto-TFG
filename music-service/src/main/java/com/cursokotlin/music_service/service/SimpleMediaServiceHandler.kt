@@ -21,6 +21,9 @@ class SimpleMediaServiceHandler @Inject constructor(
 
     val mediaItemList = mutableListOf<MediaItem>()
 
+    val currentIndex = MutableStateFlow(0)
+    val mediaItemCount = MutableStateFlow(0)
+
     init {
         player.addListener(this)
         job = Job()
@@ -33,9 +36,10 @@ class SimpleMediaServiceHandler @Inject constructor(
 
 
     suspend fun playSongAtIndex(index: Int) {
-        val mediaItemCount = player.mediaItemCount
+        currentIndex.value = index
         if (index >= 0) {
-            player.setMediaItem(mediaItemList[index])
+            //    player.setMediaItem(mediaItemList[index])
+            player.setMediaItem(getMediaItemAtIndex(index))
             player.prepare()
             player.play()
             _simpleMediaState.value = SimpleMediaState.Playing(isPlaying = true)
@@ -43,6 +47,15 @@ class SimpleMediaServiceHandler @Inject constructor(
         } else {
             player.stop()
         }
+    }
+
+    fun getMediaItemAtIndex(index: Int): MediaItem {
+        addMediaItemList(mediaItemList)
+        mediaItemCount.value = player.mediaItemCount
+        val mediaItem: MediaItem = player.getMediaItemAt(index)
+        val mediaItemCount = player.mediaItemCount
+        Log.i("informacion", "${mediaItemCount} COUNT")
+        return mediaItem
     }
 
     fun addMediaItemList(mediaItemListAdd: List<MediaItem>) {
@@ -58,13 +71,15 @@ class SimpleMediaServiceHandler @Inject constructor(
             PlayerEvent.Backward -> player.seekBack()
             PlayerEvent.Forward -> player.seekForward()
             PlayerEvent.Next -> {
-                val currentIndex = player.currentWindowIndex
-                val nextIndex = currentIndex + 1
-                val mediaItemCount = player.mediaItemCount
-
-                if (nextIndex < mediaItemCount) {
+                //  Log.i("informacion", "${currentIndex.value} player.currentWindowIndex")
+                val nextIndex = currentIndex.value + 1
+                // val mediaItemCount = player.mediaItemCount
+                //   Log.i("informacion", "${mediaItemCount} player.mediaItemCount")
+                if (nextIndex < mediaItemCount.value) {
                     playSongAtIndex(nextIndex)
+                    //      Log.i("informacion", "SE METE")
                 } else {
+                    //      Log.i("informacion", "NO SE METE")
                     // Si no hay más canciones en la cola, detener la reproducción
                     player.stop()
                     _simpleMediaState.value = SimpleMediaState.Playing(isPlaying = false)

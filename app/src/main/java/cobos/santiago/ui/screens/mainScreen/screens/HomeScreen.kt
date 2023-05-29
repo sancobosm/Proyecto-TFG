@@ -1,4 +1,4 @@
-package cobos.santiago.ui.screens.mainScreen
+package cobos.santiago.ui.screens.mainScreen.screens
 
 import android.R
 import android.util.Log
@@ -32,21 +32,24 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import cobos.santiago.data.entities.Song
-import cobos.santiago.ui.screens.componentes.PlayerBar
+import cobos.santiago.navigation.AppScreens
+import cobos.santiago.ui.screens.componentes.MainPlayerBar
 import cobos.santiago.ui.theme.SpotifyTextStyleDark
 import cobos.santiago.ui.theme.SpotifyTextStyleDarkArtist
 import cobos.santiago.ui.theme.SpotifyTextStyleLight
 import cobos.santiago.ui.theme.SpotifyTextStyleLigtArtist
-import cobos.santiago.ui.viewmodels.BottomBarViewModel
-import cobos.santiago.ui.viewmodels.SimpleMediaViewModel
-import cobos.santiago.ui.viewmodels.UIEvent
-import cobos.santiago.ui.viewmodels.UIState
+import cobos.santiago.ui.viewmodels.*
 import com.airbnb.lottie.compose.*
 import com.google.accompanist.coil.rememberCoilPainter
 
 @Composable
-fun HomeScreen(vm: SimpleMediaViewModel, startService: () -> Unit) {
+fun HomeScreen(
+    vm: SimpleMediaViewModel,
+    startService: () -> Unit,
+    navController: NavController
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -56,7 +59,7 @@ fun HomeScreen(vm: SimpleMediaViewModel, startService: () -> Unit) {
     ) {
         MyMusicAnimation()
     }
-    MyHomeScreenBody(vm, startService)
+    MyHomeScreenBody(vm, startService, navController)
 }
 
 @Composable
@@ -70,7 +73,9 @@ fun MyMusicAnimation() {
 
 @Composable
 internal fun MyHomeScreenBody(
-    vm: SimpleMediaViewModel, startService: () -> Unit
+    vm: SimpleMediaViewModel,
+    startService: () -> Unit,
+    navController: NavController
 ) {
     val state = vm.uiState.collectAsStateWithLifecycle()
     val navigationViewModel = hiltViewModel<BottomBarViewModel>()
@@ -120,7 +125,8 @@ internal fun MyHomeScreenBody(
                             vm = vm,
                             modifier = Modifier
                                 .padding(bottom = 40.dp, start = 5.dp, end = 5.dp)
-                                .align(Alignment.BottomCenter)
+                                .align(Alignment.BottomCenter),
+                            navController = navController
                         )
 
                     }
@@ -132,7 +138,9 @@ internal fun MyHomeScreenBody(
 
 @Composable
 private fun ReadyContent(
-    vm: SimpleMediaViewModel, modifier: Modifier
+    vm: SimpleMediaViewModel,
+    modifier: Modifier,
+    navController: NavController
 ) {
     SimpleMediaPlayerUI(
         durationString = vm.formatDuration(vm.duration),
@@ -143,13 +151,15 @@ private fun ReadyContent(
         },
         progressProvider = { Pair(vm.progress, vm.progressString) },
         onUiEvent = { event -> vm.onUIEvent(event) },
-        modifier = modifier
+        modifier = modifier,
+        navController = navController
     )
 }
 
 
 @Composable
 fun SimpleMediaPlayerUI(
+    navController: NavController,
     modifier: Modifier = Modifier,
     vm: SimpleMediaViewModel,
     durationString: String,
@@ -159,6 +169,7 @@ fun SimpleMediaPlayerUI(
 ) {
     val (progress, progressString) = progressProvider()
     val isDarkTheme = isSystemInDarkTheme()
+    val mainViewModel = hiltViewModel<MainViewModel>()
 
     val textStyleName = if (isDarkTheme) SpotifyTextStyleDark else SpotifyTextStyleLight
     val textStyleArtist =
@@ -169,6 +180,9 @@ fun SimpleMediaPlayerUI(
             .clip(shape = RoundedCornerShape(12.dp))
             .height(60.dp)
             .background(color = MaterialTheme.colorScheme.onSurfaceVariant)
+            .clickable {
+                navController.navigate(AppScreens.SecondaryScreen.route)
+            }
     ) {
         Row(
             modifier = Modifier
@@ -188,7 +202,7 @@ fun SimpleMediaPlayerUI(
                 contentScale = ContentScale.Crop,
             )
             Text(
-                text = vm.songs[vm.currentIndex].name + "  -  " + vm.songs[vm.currentIndex].name,
+                text = vm.songs[vm.currentIndex].name + "  -  " + vm.mediaItemList[vm.currentIndex].mediaMetadata.albumTitle,
                 //     style = textStyleName,
                 modifier = Modifier
                     .weight(1f)
@@ -210,7 +224,7 @@ fun SimpleMediaPlayerUI(
                     .size(46.dp)
             )
         }
-        PlayerBar(
+        MainPlayerBar(
             progress = progress,
             durationString = durationString,
             progressString = progressString,
@@ -256,7 +270,7 @@ fun MySongItem(
                     bottom.linkTo(parent.bottom, 16.dp)
                 })
 
-        Text(text = song.name,
+        Text(text = vm.mediaItemList[index].mediaMetadata.displayTitle.toString(),
             maxLines = 2,
             style = androidx.compose.material.MaterialTheme.typography.subtitle1,
             //     color = Color(0xFFB5B5B5),
@@ -273,7 +287,9 @@ fun MySongItem(
             })
 
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-            Text(text = song.name, maxLines = 2, style = MaterialTheme.typography.titleSmall,
+            Text(text = vm.mediaItemList[index].mediaMetadata.albumTitle.toString(),
+                maxLines = 2,
+                style = MaterialTheme.typography.titleSmall,
                 //  color = Color(0xFFB5B5B5),
                 modifier = Modifier.constrainAs(songSubtitle) {
                     linkTo(
@@ -322,7 +338,7 @@ fun MySongItem(
 
 @Composable
 fun HomeMusicScreen(
-    vm: SimpleMediaViewModel = hiltViewModel(), startService: () -> Unit
+    vm: SimpleMediaViewModel.kt = hiltViewModel(), startService: () -> Unit
 ) {
 
     Surface(modifier = Modifier.fillMaxSize()) {
@@ -334,7 +350,7 @@ fun HomeMusicScreen(
 
 @Composable
 fun HomeContent(
-    modifier: Modifier = Modifier, vm: SimpleMediaViewModel, startService: () -> Unit
+    modifier: Modifier = Modifier, vm: SimpleMediaViewModel.kt, startService: () -> Unit
 ) {
     val state = vm.uiState.collectAsStateWithLifecycle()
 
@@ -392,7 +408,7 @@ fun HomeContent(
 
 @Composable
 fun MusicListItem(
-    vm: SimpleMediaViewModel, song: Song, index: Int
+    vm: SimpleMediaViewModel.kt, song: Song, index: Int
 ) {
     ConstraintLayout(modifier = Modifier
         .clickable {

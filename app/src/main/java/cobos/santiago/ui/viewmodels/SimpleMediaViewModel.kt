@@ -42,6 +42,10 @@ class SimpleMediaViewModel @Inject constructor(
     private val _uiState = MutableStateFlow<UIState>(UIState.Initial)
     val uiState = _uiState.asStateFlow()
 
+    private val _index = MutableStateFlow(0)
+    val index = _index.asStateFlow()
+
+
     val songs = mutableListOf<Song>()
     val mediaItemList = mutableListOf<MediaItem>()
 
@@ -66,10 +70,11 @@ class SimpleMediaViewModel @Inject constructor(
     }
 
     fun playSongAtIndex(index: Int) {
+        _index.value = index
+        Log.i("informacion", "${_index.value} _index.value")
         viewModelScope.launch {
             simpleMediaServiceHandler.playSongAtIndex(index)
-            Log.i("informacion", "$index")
-            Log.i("informacion", "$currentIndex")
+
         }
     }
 
@@ -107,7 +112,10 @@ class SimpleMediaViewModel @Inject constructor(
         when (uiEvent) {
             UIEvent.Backward -> simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Backward)
             UIEvent.Forward -> simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Forward)
-            UIEvent.Next -> simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Next)
+            UIEvent.Next -> {
+                _index.value = simpleMediaServiceHandler.currentIndex.value
+                simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.Next)
+            }
             UIEvent.PlayPause -> simpleMediaServiceHandler.onPlayerEvent(PlayerEvent.PlayPause)
             is UIEvent.UpdateProgress -> {
                 progress = uiEvent.newProgress

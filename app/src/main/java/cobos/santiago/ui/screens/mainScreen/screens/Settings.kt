@@ -1,5 +1,12 @@
 package cobos.santiago.ui.screens.mainScreen.screens
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -10,22 +17,29 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import cobos.santiago.R
 import cobos.santiago.data.entities.User
 import cobos.santiago.data.remote.Auth
 import cobos.santiago.ui.viewmodels.UserViewModel
-import coil.compose.rememberImagePainter
 import com.airbnb.lottie.compose.*
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.io.File
+import java.io.FileOutputStream
 
 
 @Composable
@@ -40,6 +54,7 @@ fun MySettings() {
     }
     MySettingsBody()
 }
+
 
 @Composable
 fun MySettingsAnimation() {
@@ -67,7 +82,9 @@ fun MySettingsBody() {
     val firstNameValue = remember { mutableStateOf(user.firstName) }
     val secondNameValue = remember { mutableStateOf(user.secondName) }
 
+    val viewModel = hiltViewModel<UserViewModel>()
     val showDialog = remember { mutableStateOf(false) }
+    val selectedImageUri = viewModel.selectedImageUri.value
 
     Card(
         modifier = Modifier
@@ -84,11 +101,6 @@ fun MySettingsBody() {
             ProfilePicture()
 
             Spacer(modifier = Modifier.height(4.dp))
-            /* val textFieldColors = TextFieldDefaults.textFieldColors(
-                 focusedIndicatorColor = MaterialTheme.colorScheme.surfaceTint, // Color de la línea cuando el TextField está enfocado
-                 unfocusedIndicatorColor = MaterialTheme.colorScheme.surfaceTint, // Color de la línea cuando el TextField no está enfocado
-                 errorIndicatorColor = MaterialTheme.colorScheme.surfaceTint // Color de la línea cuando el TextField está en estado de error
-             )*/
             TextField(
                 value = emailValue.value,
                 onValueChange = { emailValue.value = it },
@@ -96,7 +108,7 @@ fun MySettingsBody() {
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 9.dp),
                 label = {
                     Text(
                         text = "Email:"
@@ -256,6 +268,8 @@ fun MySettingsBody() {
             ) {
                 Text(text = "Confirm edition")
             }
+            val scaffoldState = rememberScaffoldState()
+            val coroutineScope = rememberCoroutineScope()
 
             if (showDialog.value) {
                 AlertDialog(
@@ -267,7 +281,12 @@ fun MySettingsBody() {
                             onClick = {
                                 showDialog.value = false
 
-
+                                selectedImageUri?.let {
+                                    uploadImageToFirebase(it)
+                                    coroutineScope.launch {
+                                        scaffoldState.snackbarHostState.showSnackbar("Edition confirmed")
+                                    }
+                                }
                             }
                         ) {
                             Text("Confirm")
@@ -277,6 +296,9 @@ fun MySettingsBody() {
                         TextButton(
                             onClick = {
                                 showDialog.value = false
+                                coroutineScope.launch {
+                                    scaffoldState.snackbarHostState.showSnackbar("Canceled")
+                                }
                             }
                         ) {
                             Text("Cancel")
@@ -290,22 +312,57 @@ fun MySettingsBody() {
 
 @Composable
 fun ProfilePicture() {
-    val userViewModel = hiltViewModel<UserViewModel>()
-    // var selectedImageUri by remember { mutableStateOf("") }
-    var selectedImageUri = userViewModel.selectedImageUri.value
-    val imageLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri ->
-            // Lógica para establecer la imagen seleccionada como la imagen de perfil
-            selectedImageUri = uri.toString()
-            userViewModel.saveProfileImage(uri.toString())
-        }
-    Box(modifier = Modifier.padding(0.dp)) {
-        val painter: Painter = if (selectedImageUri.equals("")) {
-            rememberImagePainter(selectedImageUri)
-        } else {
-            painterResource(id = R.drawable.profile_image)
+    val context = LocalContext.current
+    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
+    val viewModel = hiltViewModel<UserViewModel>()
+
+    val launcher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri? ->
+            // Descargar y almacenar la imagen localmente
+            GlobalScope.launch(Dispatchers.IO) {
+                uri?.let {
+                    val inputStream = context.contentResolver.openInputStream(it)
+                    inputStream?.use { input ->
+                        val file = File(context.cacheDir, "profile_image.jpg")
+                        val outputStream = FileOutputStream(file)
+                        outputStream.use { output ->
+                            input.copyTo(output)
+                        }
+                        val savedUri = Uri.fromFile(file)
+
+                        // Actualizar el estado de la imagen seleccionada
+                        viewModel.setSelectedImageUri(savedUri)
+
+                        // Subir la imagen a Firebase Storage solo cuando se confirman los cambios
+                    }
+                }
+            }
         }
 
+    val selectedImageUri = viewModel.selectedImageUri.value
+
+    LaunchedEffect(selectedImageUri) {
+        selectedImageUri?.let {
+            if (Build.VERSION.SDK_INT < 28) {
+                bitmap.value = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+            } else {
+                val source = ImageDecoder.createSource(context.contentResolver, it)
+                bitmap.value = ImageDecoder.decodeBitmap(source)
+            }
+        }
+    }
+
+    // Cargar la imagen de Firebase si está disponible, de lo contrario cargar la imagen predeterminada
+    LaunchedEffect(Unit) {
+        val firebaseImageUri = downloadImageFromFirebase()
+        if (firebaseImageUri != null) {
+            bitmap.value = loadBitmapFromUri(context, firebaseImageUri)
+        } else {
+            bitmap.value = BitmapFactory.decodeResource(context.resources, R.drawable.profile_image)
+        }
+    }
+
+    bitmap.value?.let { btm ->
         Box(
             modifier = Modifier
                 .size(130.dp)
@@ -313,7 +370,7 @@ fun ProfilePicture() {
                 .border(1.dp, MaterialTheme.colorScheme.surfaceTint, CircleShape)
         ) {
             Image(
-                painter = painter,
+                bitmap = btm.asImageBitmap(),
                 contentDescription = "Profile Picture",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
@@ -321,11 +378,41 @@ fun ProfilePicture() {
         }
     }
     TextButton(
-        onClick = { imageLauncher.launch("image/*") },
+        onClick = { launcher.launch("image/*") },
     ) {
         Text(text = "Edit your profile image")
+    }
+
+}
+
+fun loadBitmapFromUri(context: Context, uri: Uri): Bitmap? {
+    return if (Build.VERSION.SDK_INT < 28) {
+        MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+    } else {
+        val source = ImageDecoder.createSource(context.contentResolver, uri)
+        ImageDecoder.decodeBitmap(source)
+    }
+}
+
+suspend fun downloadImageFromFirebase(): Uri? {
+    return try {
+        val storage = FirebaseStorage.getInstance()
+        val storageRef = storage.reference.child("profile_images/profile_image.jpg")
+        val file = File.createTempFile("profile_image", "jpg")
+        storageRef.getFile(file).await()
+        Uri.fromFile(file)
+    } catch (e: Exception) {
+        null
     }
 }
 
 
+fun uploadImageToFirebase(imageUri: Uri) {
+    val storage = FirebaseStorage.getInstance()
+    val storageRef = storage.reference.child("profile_images").child(imageUri.lastPathSegment!!)
+    val uploadTask = storageRef.putFile(imageUri)
 
+    uploadTask.addOnSuccessListener {
+    }.addOnFailureListener { exception ->
+    }
+}

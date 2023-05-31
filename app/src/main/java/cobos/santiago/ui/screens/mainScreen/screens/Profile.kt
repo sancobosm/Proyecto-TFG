@@ -1,19 +1,21 @@
 package cobos.santiago.ui.screens.mainScreen.screens
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -57,7 +59,8 @@ fun MyBodyProfile(navController: NavController) {
     val userViewModel = hiltViewModel<UserViewModel>()
     val user: User = userViewModel.getCurrentUser().value!!
     val auth = Auth(userViewModel)
-
+    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
+    val context = LocalContext.current
 
     val showDialog = remember { mutableStateOf(false) }
 
@@ -73,12 +76,32 @@ fun MyBodyProfile(navController: NavController) {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = user.image),
-                contentDescription = "Profile Picture",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.size(130.dp)
-            )
+            // Cargar la imagen de Firebase si está disponible, de lo contrario cargar la imagen predeterminada
+            LaunchedEffect(Unit) {
+                val firebaseImageUri = downloadImageFromFirebase()
+                if (firebaseImageUri != null) {
+                    bitmap.value = loadBitmapFromUri(context, firebaseImageUri)
+                } else {
+                    bitmap.value =
+                        BitmapFactory.decodeResource(context.resources, R.drawable.profile_image)
+                }
+            }
+
+            bitmap.value?.let { btm ->
+                Box(
+                    modifier = Modifier
+                        .size(130.dp)
+                        .clip(CircleShape)
+                        .border(1.dp, MaterialTheme.colorScheme.surfaceTint, CircleShape)
+                ) {
+                    Image(
+                        bitmap = btm.asImageBitmap(),
+                        contentDescription = "Profile Picture",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(4.dp))
             val textFieldColors = TextFieldDefaults.textFieldColors(

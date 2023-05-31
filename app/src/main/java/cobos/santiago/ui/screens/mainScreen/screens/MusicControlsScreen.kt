@@ -5,7 +5,6 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -16,7 +15,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -25,6 +23,7 @@ import cobos.santiago.ui.screens.componentes.PlayerBar
 import cobos.santiago.ui.screens.componentes.PlayerControls
 import cobos.santiago.ui.viewmodels.SimpleMediaViewModel
 import cobos.santiago.ui.viewmodels.UIEvent
+import com.airbnb.lottie.compose.*
 import com.google.accompanist.coil.rememberCoilPainter
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -132,19 +131,21 @@ fun Vinyl(
         )
 
         // Vinyl song cover
-        Image(
-            modifier = Modifier
-                .size(130.dp)
-                .rotate(rotationDegrees)
-                //    .aspectRatio(1.0f)
-                .align(Alignment.Center)
-                .clip(CircleShape),
-            painter = painter,
-            contentDescription = "Song cover",
-            contentScale = ContentScale.Crop
-
-        )
+        MyVinylAnimation()
     }
+}
+
+@Composable
+fun MyVinylAnimation() {
+    val composition by rememberLottieComposition(spec = LottieCompositionSpec.RawRes(cobos.santiago.R.raw.music_reproduction))
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = LottieConstants.IterateForever
+    )
+    LottieAnimation(
+        composition = composition,
+        progress = { progress }
+    )
 }
 
 @Composable

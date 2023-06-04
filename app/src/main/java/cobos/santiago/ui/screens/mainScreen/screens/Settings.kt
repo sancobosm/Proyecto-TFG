@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import cobos.santiago.R
 import cobos.santiago.data.entities.User
-import cobos.santiago.data.remote.Auth
 import cobos.santiago.ui.viewmodels.UserViewModel
 import com.airbnb.lottie.compose.*
 import com.google.firebase.storage.FirebaseStorage
@@ -40,7 +39,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.io.File
 import java.io.FileOutputStream
-
 
 @Composable
 fun MySettings() {
@@ -70,8 +68,6 @@ fun MySettingsAnimation() {
 fun MySettingsBody() {
     val userViewModel = hiltViewModel<UserViewModel>()
     val user: User = userViewModel.getCurrentUser().value!!
-    val auth = Auth(userViewModel)
-
 
     val emailEditMode = remember { mutableStateOf(false) }
     val firstNameEditMode = remember { mutableStateOf(false) }

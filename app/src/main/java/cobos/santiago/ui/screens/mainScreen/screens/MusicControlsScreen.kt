@@ -1,5 +1,6 @@
 package cobos.santiago.ui.screens.mainScreen.screens
 
+//noinspection SuspiciousImport
 import android.R
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
@@ -14,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -24,7 +24,6 @@ import cobos.santiago.ui.screens.componentes.PlayerControls
 import cobos.santiago.ui.viewmodels.SimpleMediaViewModel
 import cobos.santiago.ui.viewmodels.UIEvent
 import com.airbnb.lottie.compose.*
-import com.google.accompanist.coil.rememberCoilPainter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,7 +66,6 @@ fun SecondaryScreen(
             modifier = Modifier.padding(paddingValues)
         ) {
             VinylAnimation(
-                painter = rememberCoilPainter(request = vm.songs[vm.currentIndex].imageUrl),
                 isSongPlaying = vm.isPlaying
             )
         }
@@ -114,7 +112,6 @@ fun BottomPlayerUI(
 fun Vinyl(
     modifier: Modifier = Modifier,
     rotationDegrees: Float = 0f,
-    painter: Painter
 ) {
     Box(
         modifier = modifier
@@ -150,9 +147,7 @@ fun MyVinylAnimation() {
 
 @Composable
 fun VinylAnimation(
-    modifier: Modifier = Modifier,
-    isSongPlaying: Boolean = true,
-    painter: Painter
+    isSongPlaying: Boolean = true
 ) {
     var currentRotation by remember {
         mutableStateOf(0f)
@@ -188,5 +183,5 @@ fun VinylAnimation(
         }
     }
 
-    Vinyl(painter = painter, rotationDegrees = rotation.value)
+    Vinyl(rotationDegrees = rotation.value)
 }

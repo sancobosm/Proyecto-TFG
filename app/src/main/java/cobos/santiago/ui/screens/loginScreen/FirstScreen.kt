@@ -100,6 +100,7 @@ fun MyHorizontalPager(navController: NavController) {
                 0 -> {
                     MyLoginView(navController)
                 }
+
                 1 -> {
                     MyRegisterView(navController)
                 }
@@ -150,4 +151,3 @@ fun MyForgotPassword() {
         )
     }
 }
-

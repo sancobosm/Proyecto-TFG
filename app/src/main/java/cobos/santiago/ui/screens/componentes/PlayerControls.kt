@@ -1,5 +1,6 @@
 package cobos.santiago.ui.screens.componentes
 
+//noinspection SuspiciousImport
 import android.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable

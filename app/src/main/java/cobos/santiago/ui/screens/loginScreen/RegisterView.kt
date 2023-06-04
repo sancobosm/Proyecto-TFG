@@ -50,30 +50,34 @@ fun MyBody(navController: NavController) {
             .fillMaxWidth()
             .padding(start = 20.dp, end = 20.dp)
     ) {
-
         MyField(text = emailText, {
             viewModel.onTextChanged(it)
             viewModel.onRegisterChanged(it, passwordText, confirmPasswordText)
         }, "Email", isRegisterError)
         Spacer(Modifier.size(10.dp))
+
         MyField(text = nameText, {
             nameText = it
         }, "Name", isRegisterError)
         Spacer(Modifier.size(10.dp))
+
         MyField(text = lastNameText, {
             lastNameText = it
         }, "Last name", isRegisterError)
         Spacer(Modifier.size(10.dp))
+
         MyFieldPassword(text = passwordText, {
             viewModel.onPasswordChanged(it)
             viewModel.onRegisterChanged(emailText, it, confirmPasswordText)
         }, "Password", isRegisterError)
         Spacer(Modifier.size(10.dp))
+
         MyFieldPassword(text = confirmPasswordText, {
             viewModel.onConfirmPasswordChanged(it)
             viewModel.onRegisterChanged(emailText, passwordText, it)
         }, "Confirm password", isRegisterError)
         Spacer(Modifier.size(50.dp))
+
         Button(
             modifier = Modifier
                 .width(300.dp),
@@ -95,7 +99,12 @@ fun MyBody(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyField(text: String, onValueChanged: (String) -> Unit, s: String, errorSate: Boolean) {
+fun MyField(
+    text: String,
+    onValueChanged: (String) -> Unit,
+    s: String,
+    errorSate: Boolean
+) {
     TextField(
         value = text,
         onValueChange = onValueChanged,

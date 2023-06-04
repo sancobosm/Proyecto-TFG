@@ -1,11 +1,11 @@
 package cobos.santiago.ui.screens.mainScreen.screens
 
+//noinspection SuspiciousImport
 import android.R
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,19 +30,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import cobos.santiago.data.entities.Song
 import cobos.santiago.navigation.AppScreens
 import cobos.santiago.ui.screens.componentes.MainPlayerBar
-import cobos.santiago.ui.theme.SpotifyTextStyleDark
-import cobos.santiago.ui.theme.SpotifyTextStyleDarkArtist
-import cobos.santiago.ui.theme.SpotifyTextStyleLight
-import cobos.santiago.ui.theme.SpotifyTextStyleLigtArtist
-import cobos.santiago.ui.viewmodels.*
+import cobos.santiago.ui.viewmodels.SimpleMediaViewModel
+import cobos.santiago.ui.viewmodels.UIEvent
+import cobos.santiago.ui.viewmodels.UIState
+import coil.compose.AsyncImage
 import com.airbnb.lottie.compose.*
-import com.google.accompanist.coil.rememberCoilPainter
 
 @Composable
 fun HomeScreen(
@@ -78,7 +75,6 @@ internal fun MyHomeScreenBody(
     navController: NavController
 ) {
     val state = vm.uiState.collectAsStateWithLifecycle()
-    val navigationViewModel = hiltViewModel<BottomBarViewModel>()
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -95,6 +91,7 @@ internal fun MyHomeScreenBody(
                         .size(30.dp)
                         .align(Alignment.Center)
                 )
+
                 is UIState.Ready -> {
                     LaunchedEffect(true) { // This is only call first time
                         startService()
@@ -106,17 +103,14 @@ internal fun MyHomeScreenBody(
                                 .padding(0.dp)
                                 .background(color = MaterialTheme.colorScheme.onSecondary)
 
-                            /*.weight(6f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)*/
                         ) {
                             items(items = vm.songs, key = {
                                 it.id
                             }) { song ->
                                 MySongItem(
-                                    song.name, Modifier.height(70.dp), song, vm, song.id.toInt()
+                                    song, vm, song.id.toInt()
                                 )
                             }
-                            // Agregar un espacio adicional al final
                             item {
                                 Spacer(modifier = Modifier.height(110.dp))
                             }
@@ -143,17 +137,15 @@ private fun ReadyContent(
     navController: NavController
 ) {
     SimpleMediaPlayerUI(
-        durationString = vm.formatDuration(vm.duration),
+        navController = navController,
+        modifier = modifier,
         vm = vm,
         playResourceProvider = {
             if (vm.isPlaying) R.drawable.ic_media_pause
             else R.drawable.ic_media_play
         },
-        progressProvider = { Pair(vm.progress, vm.progressString) },
-        onUiEvent = { event -> vm.onUIEvent(event) },
-        modifier = modifier,
-        navController = navController
-    )
+        progressProvider = { Pair(vm.progress, vm.progressString) }
+    ) { event -> vm.onUIEvent(event) }
 }
 
 
@@ -162,18 +154,11 @@ fun SimpleMediaPlayerUI(
     navController: NavController,
     modifier: Modifier = Modifier,
     vm: SimpleMediaViewModel,
-    durationString: String,
     playResourceProvider: () -> Int,
     progressProvider: () -> Pair<Float, String>,
     onUiEvent: (UIEvent) -> Unit,
 ) {
-    val (progress, progressString) = progressProvider()
-    val isDarkTheme = isSystemInDarkTheme()
-    val mainViewModel = hiltViewModel<MainViewModel>()
-
-    val textStyleName = if (isDarkTheme) SpotifyTextStyleDark else SpotifyTextStyleLight
-    val textStyleArtist =
-        if (isDarkTheme) SpotifyTextStyleDarkArtist else SpotifyTextStyleLigtArtist
+    val (progress) = progressProvider()
     Card(
         modifier = modifier
             .padding(top = 0.dp, bottom = 0.dp, end = 0.dp, start = 0.dp)
@@ -193,8 +178,8 @@ fun SimpleMediaPlayerUI(
 
         ) {
 
-            Image(
-                painter = rememberCoilPainter(request = vm.songs[vm.currentIndex].imageUrl),
+            AsyncImage(
+                model = vm.songs[vm.currentIndex].imageUrl,
                 contentDescription = "Current song image",
                 Modifier
                     .size(45.dp)
@@ -208,12 +193,6 @@ fun SimpleMediaPlayerUI(
                     .weight(1f)
                     .padding(start = 10.dp)
             )
-            /*Text(
-                text = vm.songs[vm.currentIndex].name,
-                style = textStyleArtist,
-                modifier = Modifier.padding(bottom = 0.dp, start = 0.dp, end = 0.dp)
-            )*/
-
             Image(
                 painter = painterResource(id = playResourceProvider()),
                 contentDescription = "Play/Pause Button",
@@ -226,17 +205,16 @@ fun SimpleMediaPlayerUI(
         }
         MainPlayerBar(
             progress = progress,
-            durationString = durationString,
-            progressString = progressString,
             onUiEvent = onUiEvent
         )
-        //    }
     }
 }
 
 @Composable
 fun MySongItem(
-    name: String, modifier: Modifier, song: Song, vm: SimpleMediaViewModel, index: Int
+    song: Song,
+    vm: SimpleMediaViewModel,
+    index: Int
 ) {
     ConstraintLayout(modifier = Modifier
         .clickable {
@@ -258,7 +236,8 @@ fun MySongItem(
                 }, color = MaterialTheme.colorScheme.background
         )
 
-        Image(painter = rememberCoilPainter(song.imageUrl, fadeIn = true),
+        AsyncImage(
+            model = song.imageUrl,
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
@@ -273,7 +252,6 @@ fun MySongItem(
         Text(text = vm.mediaItemList[index].mediaMetadata.displayTitle.toString(),
             maxLines = 2,
             style = androidx.compose.material.MaterialTheme.typography.subtitle1,
-            //     color = Color(0xFFB5B5B5),
             modifier = Modifier.constrainAs(songTitle) {
                 linkTo(
                     start = image.end,
@@ -290,7 +268,6 @@ fun MySongItem(
             Text(text = vm.mediaItemList[index].mediaMetadata.albumTitle.toString(),
                 maxLines = 2,
                 style = MaterialTheme.typography.titleSmall,
-                //  color = Color(0xFFB5B5B5),
                 modifier = Modifier.constrainAs(songSubtitle) {
                     linkTo(
                         start = image.end,
@@ -332,145 +309,3 @@ fun MySongItem(
         }
     }
 }
-
-
-/*
-
-@Composable
-fun HomeMusicScreen(
-    vm: SimpleMediaViewModel.kt = hiltViewModel(), startService: () -> Unit
-) {
-
-    Surface(modifier = Modifier.fillMaxSize()) {
-        HomeContent(
-            modifier = Modifier.fillMaxSize(), vm = vm, startService
-        )
-    }
-}
-
-@Composable
-fun HomeContent(
-    modifier: Modifier = Modifier, vm: SimpleMediaViewModel.kt, startService: () -> Unit
-) {
-    val state = vm.uiState.collectAsStateWithLifecycle()
-
-    Column(modifier = modifier) {
-        val appBarColor = Color.LightGray
-        Spacer(
-            Modifier
-                //    .background(appBarColor)
-                .fillMaxWidth()
-        )
-        when (state.value) {
-            UIState.Initial -> {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    androidx.compose.material.CircularProgressIndicator(
-                        //     color = androidx.compose.material.MaterialTheme.colors.onBackground,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .fillMaxHeight()
-
-                            .align(Alignment.Center)
-                            .padding(
-                                top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp
-                            )
-                    )
-                }
-
-            }
-            is UIState.Ready -> {
-                LaunchedEffect(true) { // This is only call first time
-                    startService()
-                }
-                Box(
-                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter
-                ) {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            //.background(androidx.compose.material.MaterialTheme.colors.background)
-                            .padding(bottom = 60.dp)
-                            .align(Alignment.TopCenter)
-                    ) {
-                        items(
-                            items = vm.songs,
-                        ) {
-                            MusicListItem(
-                                vm = vm, song = it, index = it.id.toInt()
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun MusicListItem(
-    vm: SimpleMediaViewModel.kt, song: Song, index: Int
-) {
-    ConstraintLayout(modifier = Modifier
-        .clickable {
-            println("${index}*******************************index*************")
-            vm.playSongAtIndex(index)
-        }
-        .fillMaxWidth()) {
-        val (divider, songTitle, songSubtitle, image, playIcon) = createRefs()
-
-        Divider(Modifier.constrainAs(divider) {
-            top.linkTo(parent.top)
-            centerHorizontallyTo(parent)
-
-            width = Dimension.fillToConstraints
-        })
-
-        Image(painter = rememberCoilPainter(song.imageUrl, fadeIn = true),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .size(56.dp)
-                .clip(MaterialTheme.shapes.medium)
-                .constrainAs(image) {
-                    end.linkTo(parent.end, 16.dp)
-                    top.linkTo(parent.top, 16.dp)
-                    bottom.linkTo(parent.bottom, 16.dp)
-                })
-
-        Text(text = song.name,
-            maxLines = 2,
-            style = MaterialTheme.typography.titleSmall,
-            modifier = Modifier.constrainAs(songTitle) {
-                linkTo(
-                    start = parent.start,
-                    end = image.start,
-                    startMargin = 24.dp,
-                    endMargin = 16.dp,
-                    bias = 0f
-                )
-                top.linkTo(parent.top, 16.dp)
-                start.linkTo(parent.start, 16.dp)
-                width = Dimension.preferredWrapContent
-            })
-
-        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-            Text(text = song.name,
-                maxLines = 2,
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.constrainAs(songSubtitle) {
-                    linkTo(
-                        start = parent.start,
-                        end = image.start,
-                        startMargin = 24.dp,
-                        endMargin = 16.dp,
-                        bias = 0f
-                    )
-                    top.linkTo(songTitle.bottom, 6.dp)
-                    start.linkTo(parent.start, 16.dp)
-                    width = Dimension.preferredWrapContent
-                })
-        }
-    }
-}
-
-*/

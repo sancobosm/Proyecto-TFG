@@ -55,8 +55,6 @@ internal fun PlayerBar(
 @Composable
 internal fun MainPlayerBar(
     progress: Float,
-    durationString: String,
-    progressString: String,
     onUiEvent: (UIEvent) -> Unit
 ) {
     val newProgressValue = remember { mutableStateOf(0f) }

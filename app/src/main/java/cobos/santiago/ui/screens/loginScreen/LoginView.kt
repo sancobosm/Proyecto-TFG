@@ -25,7 +25,6 @@ import cobos.santiago.ui.viewmodels.UserViewModel
 
 @Composable
 fun MyLoginView(navController: NavController) {
-    //viewmodel
     val viewModel = hiltViewModel<LoginViewModel>()
     val userViewModel = hiltViewModel<UserViewModel>()
 
@@ -38,7 +37,6 @@ fun MyLoginView(navController: NavController) {
     val isLoginError: Boolean by viewModel.isLoginSuccess.observeAsState(initial = false)
 
     val auth = Auth(userViewModel)
-    //column for main content of the login
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -64,9 +62,7 @@ fun MyLoginView(navController: NavController) {
                 .width(200.dp),
             enabled = isButtonEnabled,
             onClick = {
-                //navController.navigate(AppScreens.HomeScreen.ruta)
                 auth.makeLogin(loginText, passwordText, navController) {
-                    //caso de error
                     viewModel.onLoginError(true)
                     viewModel.onLoginChanged("", "")
                 }

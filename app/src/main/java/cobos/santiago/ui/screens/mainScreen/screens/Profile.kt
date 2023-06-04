@@ -76,7 +76,6 @@ fun MyBodyProfile(navController: NavController) {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Cargar la imagen de Firebase si está disponible, de lo contrario cargar la imagen predeterminada
             LaunchedEffect(Unit) {
                 val firebaseImageUri = downloadImageFromFirebase()
                 if (firebaseImageUri != null) {
